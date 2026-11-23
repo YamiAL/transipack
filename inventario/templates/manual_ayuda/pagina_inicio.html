@@ -1,0 +1,70 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+
+{% block css_content %} 
+  <!-- ** CSS Plugins Needed for the Project ** -->
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="{% static '/manual_ayuda/plugins/bootstrap/bootstrap.min.css' %}">
+  <!-- themefy-icon -->
+  <link rel="stylesheet" href="{% static '/manual_ayuda/plugins/themify-icons/themify-icons.css' %}">
+  <!--Favicon-->
+  <link rel="icon" href="{% static '/manual_ayuda/images/favicon.png" type="image/x-icon' %}">
+  <!-- Main Stylesheet -->
+  <link href="{% static '/manual_ayuda/assets/style.css" rel="stylesheet" media="screen' %}"/>
+
+   <link rel="stylesheet" href="{% static '/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static '/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}"> 
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static '/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"> 
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static '/plugins/jqvmap/jqvmap.min.css' %}"> 
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static '/dist/css/adminlte.css' %}"> 
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static '/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <!-- header -->
+  <header class="banner overlay bg-cover" data-background="images/banner.jpg">
+
+    <!-- banner -->
+  <img src="{% static 'manual_ayuda/images/encabezado.png' %}" class="img-fluid" alt="Responsive image" style="max-width: 100%;">
+    <!-- /banner -->
+  </header>
+  <!-- /header -->
+
+  <!-- topics -->
+  <section class="section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <!-- topic-item -->
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <a href="{% url 'modulo_inventario' %}" class="px-4 py-5 bg-white shadow text-center d-block match-height">
+            <i class="ti-clipboard icon text-primary d-block mb-4"></i>
+            <h3 class="mb-3 mt-0">Módulo de Inventario</h3>
+          </a>
+        </div>
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <a href="{% url 'modulo_facturacion' %}" class="px-4 py-5 bg-white shadow text-center d-block match-height">
+            <i class="ti-money icon text-primary d-block mb-4"></i>
+            <h3 class="mb-3 mt-0">Módulo de Facturación</h3>
+          </a>
+        </div>
+       
+      </div>
+    </div>
+  </section>
+  <!-- /topics -->
+
+ {% endblock %} 
+
+  

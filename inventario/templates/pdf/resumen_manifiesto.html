@@ -1,0 +1,220 @@
+
+{% load static %}
+{% load delete_underscore %}
+{% load qr_code %}
+<html>
+
+<head>
+    <!-- {% block css_content %} -->
+    <link rel="stylesheet" href="{% static '/plugins/barcode/JsBarcode.css' %}"> 
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/code39_all.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39_L.css' %}">   
+    <!-- {% endblock %} -->
+
+    <style>
+        @page {
+            /* Configuracion general de la hoja */
+            /* size: a4 landscape; */
+            size: a4; 
+            margin: 1cm, 1cm, 1cm, 1cm;
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 180pt;
+                width: 505pt;
+                top: 810pt;
+                height: 20pt;
+            }
+        }
+
+        th,
+        th {
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 8px;
+            padding: 2px;
+            word-wrap: break-word,
+        }
+
+        .first-td {
+            font-size: 8px;
+            padding: 1px;
+            word-wrap: break-word,
+        }
+
+        .table-info-td {
+            font-size: 6px;
+            padding: 0.8px;
+            word-wrap: break-word,
+        }
+
+        #descripcion_cargas {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 1px;
+        }
+
+        #footer_content label{
+            font-size: 8px;
+        }
+    </style>
+</head>
+
+<body>  
+    <table border="0">
+        <tbody>
+            <tr>
+                <td rowspan="2" style="width: 130px; height: 70px;"><img style="height: 100%; width: 100%;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo_cubanacan_express_sin_fondo.png' %}" />
+                </td>
+                <td class="header-td" colspan="4">
+                    <h1 style="text-align: left; font-size: 10px; margin-left: 100px;">RESUMEN DE MANIFIESTO 
+                        {% if manifiesto.AWB %}
+                     {{manifiesto.AWB}}
+                     {% else %}
+                     {{manifiesto.No_Contenedor}}
+                     {% endif %}
+                 </h1> 
+                    
+                </td>
+                
+            </tr>
+            <tr>
+                <td>
+                    
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table border="0" style="margin-top:25px;">
+        <tbody>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    No. de Manifiesto:
+                </td>
+                <td style="font-size: 4;">
+                    {{manifiesto.Manifiesto}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Consignatario:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Consignatario}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Fecha de importación:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Fecha_Importacion|date:"d/M/Y"}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Agencia:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Agencia}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    País de origen:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Pais_Origen}}
+                </td>
+            </tr>
+             <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Aeropuerto de origen:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Aeropuerto_Origen}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Peso total:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Peso_total}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Cantidad de envíos:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Cantidad_envios}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Cantidad de bultos:
+                </td>
+                 <td style="font-size: 4;">
+                    {{manifiesto.Cantidad_bultos}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    HBL en inventario:
+                </td>
+                 <td style="font-size: 4;">
+                    {{cant_hbl_inventario}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    HBL en traslado:
+                </td>
+                 <td style="font-size: 4;">
+                    {{cant_hbl_traslado}}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    HBL entregados:
+                </td>
+                 <td style="font-size: 4;">
+                    {{cant_hbl_entregado}}
+                </td>
+            </tr> 
+            <tr>
+                <td style="font-size: 4;font-weight: bold;">
+                    Total facturado:
+                </td>
+                 <td style="font-size: 4;">
+                    {{valores_totales.total_total}}
+                </td>
+            </tr> 
+           
+        </tbody>
+    </table>
+    
+    <div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div> 
+    
+    <div id="footer_content">
+        <label>Sistema de Gestión de Paquetería TRANSIPACK v 1.0. Desarrollado por SITRANS</label>
+    </div>
+    {% block js_content %}
+    <script type="text/javascript" src="{% static '/plugins/htmlbarcode_src/code39.js' %}"></script>          
+    <script type="text/javascript" src="{% static '/plugins/barcode/JsBarcode.all.min.js ' %}"></script>         
+    <script type="text/javascript">   
+        bar_code = {{ qr }}     
+        JsBarcode("#barcode", bar_code);
+    </script>         
+    {% endblock %}
+</body>
+
+</html>

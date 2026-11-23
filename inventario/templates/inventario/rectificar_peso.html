@@ -1,0 +1,89 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %}
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">{{ header_text }}</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+          <li class="breadcrumb-item active">{{ breadcrumb_text }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content rectificar-peso">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <section class="content" style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+          <form id="filter_form" action="{% url 'rectificar_peso' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-xl-6 col-lg-8 col-md-10 col-sm-12">
+                <div class="form-group mb-0">
+                  <label for="id_hbl">HBL</label>
+                  <input type="text" name="hbl" id="id_hbl" class="form-control" autocomplete="off" autofocus />
+                </div>
+              </div>
+            </div>
+            <div class="acciones-peso">
+              <button type="submit" class="btn btn-primary">Comprobar peso</button>
+              <a href="{{ request.path }}" class="btn btn-primary">Limpiar</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    {% if request.method == 'POST' %}
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <section class="content" style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+          {% if peso_diferente %}
+          <div class="peso-resultado">
+            <div class="peso-dato">
+              <span class="detalle-label">HBL</span>
+              <span class="detalle-valor">{{ hbl }}</span>
+            </div>
+            <div class="peso-dato">
+              <span class="detalle-label">Peso manifestado</span>
+              <span class="detalle-valor">{{ peso_manifestado }} kg</span>
+            </div>
+            <div class="peso-dato">
+              <span class="detalle-label">Peso real</span>
+              <span class="detalle-valor">{{ peso_real }} kg</span>
+            </div>
+          </div>
+          {% else %}
+          <p class="peso-ok">El peso es correcto.</p>
+          {% endif %}
+        </section>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block js_content %}
+<script>
+  $(document).ready(function() {
+    $('#id_hbl').focus();
+  });
+</script>
+{% endblock %}

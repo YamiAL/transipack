@@ -1,0 +1,382 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+
+
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Parte operativo
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> Parte operativo </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="POST">
+                      {% csrf_token %}
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Búsquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Fecha_Desde.errors }}
+                            {{ inventario_filter.Fecha_Desde.label_tag }}
+                            <label style="color: red;">*</label>
+                            {{ inventario_filter.Fecha_Desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Fecha_Hasta.errors }}
+                            {{ inventario_filter.Fecha_Hasta.label_tag }}
+                            <label style="color: red;">*</label>
+                            {{ inventario_filter.Fecha_Hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Almacen.errors }}
+                            {{ inventario_filter.Almacen.label_tag }}
+                            <label style="color: red;">*</label>
+                            {{ inventario_filter.Almacen }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Facturadores.errors }}
+                            {{ inventario_filter.Facturadores.label_tag }}
+                            {{ inventario_filter.Facturadores }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Posiciones_Aduana.errors }}
+                            {{ inventario_filter.Posiciones_Aduana.label_tag }}
+                            {{ inventario_filter.Posiciones_Aduana }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Montacargas.errors }}
+                            {{ inventario_filter.Montacargas.label_tag }}
+                            {{ inventario_filter.Montacargas }}
+                          </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            <button type="submit" style="margin-top: 32px;" class="btn btn-primary">Generar Reporte</button>
+                            <a href="{{ request.path }}"  style="margin-top: 32px;" class="btn btn-primary">Limpiar</a>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </section>
+            </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Rigth col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid table-responsive">
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;" colspan="5">Fuerza de Trabajo</th>
+                        </tr>
+                        <tr>
+                          <th style="text-align: center;">Items</th>
+                          <th style="text-align: center;">Cantidad</th>
+                          <th style="text-align: center;">Items</th>
+                          <th style="text-align: center;" colspan="2">Cantidad</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center;">Brigada Est.</td>
+                          <td style="text-align: center;">{{fuerza_trabajo.Brigada}}</td>
+                          <td style="text-align: center;">Posición Aduana</td>
+                          <td style="text-align: center;" colspan="2">{{fuerza_trabajo.Posiciones_Aduana}}</td>      
+                        </tr>
+                        <tr>
+                          <td style="text-align: center;">Facturadores</td>
+                          <td style="text-align: center;">{{fuerza_trabajo.Facturadores}}</td>
+                          <td style="text-align: center;">Montacargas</td>
+                          <td style="text-align: center;" colspan="2">{{fuerza_trabajo.Montacargas}}</td>      
+                        </tr>
+                        <thead>
+
+                        <tr>
+                          <th style="text-align: center;" colspan="5">Mercancías Entradas</th>
+                        </tr>
+                        <tr>
+                          <th style="text-align: center;">TEUS O FEUS</th>
+                          <th style="text-align: center;">Manifiesto</th>
+                          <th style="text-align: center;">Cantidad de HBL</th>
+                          <th style="text-align: center;" colspan="2">Cantidad de Bultos</th>
+                        </tr>
+                        </thead>
+                        {% for current_entrada in entradas %}
+                        <tr>
+                          <td style="text-align: center;">
+                             {%for contendor in current_entrada.Contenedor %}
+                              {% if contendor %}<p>{{contendor}}</p>{% endif %}
+                            {%endfor%}
+                        </td>
+                          <td style="text-align: center;">
+                            {%for manifiesto in current_entrada.Manifiesto %}
+                           <p>{{manifiesto}}</p>
+                            {%endfor%}
+                          </td>
+                          <td style="text-align: center;">{{current_entrada.Total_HBL}}</td>
+                          <td style="text-align: center;" colspan="2">{{current_entrada.Total_Bultos}}</td>      
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                          <th style="text-align: center;" colspan="5">Bultos Retornados</th>
+                        </tr>
+                        <tr>
+                          <th style="text-align: center;">Vehículo</th>
+                          <th style="text-align: center;">No. Factura Operador</th>
+                          <th style="text-align: center;">HBL</th>
+                          <th style="text-align: center;" colspan="2">Cantidad de Bultos</th>
+                        </tr>
+                        </thead>
+                        {% for current_devolucion in devoluciones %}
+                        <tr>
+                          <td style="text-align: center;">{{current_devolucion.Vehiculo.Chapa}}</td>
+                          <td style="text-align: center;">{{current_devolucion.No_Factura_Operador}}</td>
+                          <td style="text-align: center;">{{current_devolucion.HBL}}</td>
+                          <td style="text-align: center;" colspan="2">{{current_devolucion.Cantidad_Bultos}}</td>      
+                        </tr>
+                        {% endfor %}
+
+                         <tr>
+                          <th style="text-align: center;" colspan="5">Mercancías despachadas por aduana</th>
+                        </tr>
+                        <tr>
+                          <th style="text-align: center;">HBL</th>
+                          <th style="text-align: center;">Clientes</th>
+                          <th style="text-align: center;">Cantidad de Bultos</th>
+                          <th style="text-align: center;">ENA</th>
+                          <th style="text-align: center;">Envío</th>
+
+                        </tr>
+                        </thead>
+                        {% for nacionalizacion in nacionalizaciones %}
+                        <tr>
+                          <td style="text-align: center;">{{nacionalizacion.Cantidad_HBL}}</td>
+                          <td style="text-align: center;">{{nacionalizacion.Cantidad_Clientes}}</td>
+                          <td style="text-align: center;">{{nacionalizacion.Cantidad_Bultos}}</td>
+                          <td style="text-align: center;">{{nacionalizacion.Cantidad_ENA}}</td>      
+                          <td style="text-align: center;">{{nacionalizacion.Cantidad_Envios}}</td>      
+                        </tr>
+                        {% endfor %}
+
+                        <tr>
+                          <th style="text-align: center;" colspan="5">Mercancías distribuidas</th>
+                        </tr>
+                        <tr>
+                          <th style="text-align: center;">Operador</th>
+                          <th style="text-align: center;">Transportista</th>
+                          <th style="text-align: center;">Cantidad de HBL</th>
+                          <th style="text-align: center;">Cantidad de Bultos</th>
+                          <th style="text-align: center;">Destinos</th>
+
+                        </tr>
+                        </thead>
+                        {% for entrega in entregas %}
+                        <tr>
+                          <td style="text-align: center;">{{entrega.Operador}}</td>
+                          <td style="text-align: center;">{{entrega.Transportista}}</td>
+                          <td style="text-align: center;">{{entrega.Cantidad_HBL}}</td>
+                          <td style="text-align: center;">{{entrega.Cantidad_Bultos}}</td>      
+                          <td style="text-align: center;">
+                            {% for destino in entrega.Destinos %}
+                            <p>{% if destino is None %}{% else %}- {{destino}}<br>{% endif %}</p>
+                            {% endfor %}
+                          </td>      
+                        </tr>
+                        {% endfor %}
+
+                        <tr>
+                          <th style="text-align: center;" colspan="5">Mercancías listas para distribución(Nuevo Turno)</th>
+                        </tr>
+                        <tr>
+                          
+                          <th style="text-align: center;">Cantidad de HBL</th>
+                          <th style="text-align: center;">Cantidad de Bultos</th>
+                          <th style="text-align: center;">M3</th>
+                          <th style="text-align: center;" colspan="2">Destinos Provincias</th>
+
+                        </tr>
+                        </thead>
+                        {% for inventario in prox_distribucion %}
+                        <tr>
+                          <td style="text-align: center;"> {%if inventario.Cantidad_HBL %}{{inventario.Cantidad_HBL}} {%else%} ----- {%endif%} </td>
+                          <td style="text-align: center;"> {%if inventario.Cantidad_Bultos %}{{inventario.Cantidad_Bultos}} {%else%} ----- {%endif%} </td>
+                          <td style="text-align: center;"> {%if inventario.Cantidad_M3 %}{{inventario.Cantidad_M3}} {%else%} ----- {%endif%} </td>
+                          <td style="text-align: center;" colspan="2">
+                            {%if inventario.Destinos %}
+                            {% for destino in inventario.Destinos %}
+                            <p>{% if destino is None %}{% else %}- {{destino}}<br>{% endif %}</p>
+                            {% endfor %}
+                            {%else%} ----- {%endif%} 
+                          </td>      
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                      
+                    </table>
+                    
+                  </div>
+                </section>
+              </div>
+            </div>
+            
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            // "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "fixedHeader": true,
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": false,
+        //"scrollY": "500px",
+        //"scrollX": "300px",
+        "buttons": [
+            { extend: 'copyHtml5', footer: true },
+            { extend: 'excelHtml5', footer: true, title: 'Parte operativo generado por TransiPack', },
+            { extend: 'csvHtml5', footer: true, title: 'Parte operativo generado por TransiPack', },
+            { extend: 'pdfHtml5', footer: true, title: 'Parte operativo generado por TransiPack', },
+            { extend: 'print', footer: true, title: 'Parte operativo generado por TransiPack', }
+        ]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+      //Fin de datatable------------------------------------------------------------------------------------
+    });
+</script>
+
+{% endblock %}

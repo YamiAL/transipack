@@ -1,0 +1,298 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load delete_underscore %}
+
+{% block css_content %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+<section class="content-header">
+  <div class="container-fluid">
+    {% if lista_inventarios_por_persona_sin_aranceles %}
+    <div class="alert alert-warning alert-detalle">
+      <strong>Los siguientes HBL carecen de los aranceles aduanales:</strong>
+      {% for hbl in lista_inventarios_por_persona_sin_aranceles %}
+        <p>{{ hbl }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Detalles del traslado</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'entrega_programadas' %}">Traslados</a></li>
+          <li class="breadcrumb-item active">Detalles del traslado</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content detalle-traslado">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-9 col-12">
+        <section class="content" style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+          <h4>Datos del traslado</h4>
+          <hr>
+          <div class="detalle-campos">
+            <div class="detalle-campo">
+              <span class="detalle-label">Fecha del traslado</span>
+              <span class="detalle-valor">{{ current_entrega.Fecha_Entrega }}</span>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Estado</span>
+              <span class="detalle-valor">
+                <span class="detalle-estado {{ current_entrega.Estado|lower }}">{{ current_entrega.Estado }}</span>
+              </span>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Hora de salida</span>
+              <span class="detalle-valor">{{ current_entrega.Hora_Salida|time:"g:iA"|default:"—" }}</span>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Hora de regreso</span>
+              <span class="detalle-valor">{{ current_entrega.Hora_Llegada|time:"g:iA"|default:"—" }}</span>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Transportista</span>
+              <span class="detalle-valor">{% if current_entrega.Transportista %}{{ current_entrega.Transportista }}{% else %}—{% endif %}</span>
+            </div>
+            <div class="detalle-campo">
+              <span class="detalle-label">Operador</span>
+              <span class="detalle-valor">{% if current_entrega.Factura_Operador %}{{ current_entrega.Factura_Operador.Operador }}{% else %}—{% endif %}</span>
+            </div>
+          </div>
+
+          <h4 class="mt-3">Relación de inventarios en traslado</h4>
+          <hr>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm table-striped" id="inventario_table">
+              <thead>
+                <tr>
+                  <th>No. de comprobante</th>
+                  <th>Destinatario</th>
+                  <th>CI</th>
+                  <th>Provincia</th>
+                  <th>Municipio</th>
+                  <th>Bultos</th>
+                  <th>Opciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for current_comprobante in current_entrega.Factura_Operador.Facturas_Destinatarios.all %}
+                <tr>
+                  <td>{{ current_comprobante.id }}</td>
+                  <td>{{ current_comprobante.Destinatario.Nombre }}</td>
+                  <td>{{ current_comprobante.Destinatario.CI }}</td>
+                  <td>{{ current_comprobante.Destinatario.Provincia.Nombre }}</td>
+                  <td>{{ current_comprobante.Destinatario.Municipio.Nombre }}</td>
+                  <td>{{ current_comprobante.Inventario.count }}</td>
+                  <td class="detalle-acciones">
+                    <a href="{% url 'factura_detalle_pdf' current_comprobante.id %}" target="_blank" class="accion-icono" title="Ver comprobante">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    <a href="{% if current_comprobante.Estado %}{% url 'factura_detalle_img' current_comprobante.id %}{% else %}#{% endif %}"
+                      {% if current_comprobante.Estado %} target="_blank"{% endif %}
+                      class="accion-icono{% if not current_comprobante.Estado %} deshabilitado{% endif %}"
+                      title="{% if current_comprobante.Estado %}Imprimir{% else %}Sin comprobante para imprimir{% endif %}">
+                      <i class="fas fa-print"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" class="text-muted">No hay inventarios asociados a este traslado.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <div class="col-lg-3 col-12">
+        <section class="content detalle-opciones" style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+          <h5>Opciones</h5>
+          <hr>
+          {% if current_entrega.Estado == 'Programado' %}
+          <a href="{% url 'ejecutar_entrega' current_entrega.id %}" class="btn btn-primary">Ejecutar</a>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-cancelar">Cancelar</button>
+          {% endif %}
+          {% if current_entrega.Estado == 'Ejecucion' %}
+          <a href="{% url 'lista_entregas_pdf' current_entrega.id %}" class="btn btn-primary" target="_blank">Listado de transportista</a>
+          <a href="{% url 'factura_operador_detalle_pdf' current_entrega.Factura_Operador.id %}" class="btn btn-primary" target="_blank">Comprobante de entrega</a>
+          <a href="{% url 'concluir_entrega' current_entrega.id %}" class="btn btn-primary">Concluir</a>
+          {% endif %}
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="modal-cancelar">
+  <div class="modal-dialog">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="action_cancelar" />
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Cancelar traslado</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <label>Usted va a cancelar el traslado</label>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Aceptar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-generar-factura">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Generar comprobante de entrega</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="GET" id="form" action="{% url 'facturacion_multiple_ena_menaje_pdf' current_entrega.id %}" target="_blank">
+        <div class="modal-body">
+          <label>Por favor complete la siguiente información</label>
+          <div class="form-group mt-2">
+            <label>Importe por derecho aduanal</label>
+            <input type="text" name="importe_derecho_aduanal" id="id_importe_derecho_aduanal" class="form-control" value="0.0" />
+          </div>
+          <div class="form-group">
+            <label>Importe por servicio aduanal</label>
+            <input type="text" name="importe_servicio_aduanal" id="id_importe_servicio_aduanal" class="form-control" value="0.0" />
+          </div>
+          <div class="form-group">
+            <label>Otros importes</label>
+            <input type="text" name="cargos_extra" id="id_cargos_extra" class="form-control" value="0.0" />
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="button_generar_factura">Aceptar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-generar-factura-envio">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Generar comprobante de entrega</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="GET" id="form_envio" action="{% url 'facturacion_multiple_envios_pdf' current_entrega.id %}" target="_blank">
+        <div class="modal-body">
+          <label>Por favor complete la siguiente información</label>
+          <div class="form-group mt-2">
+            <label>Cargos extra</label>
+            <input type="text" name="cargos_extra" id="id_cargos_extra_envio" class="form-control" value="0.00" />
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="button_generar_factura_envio">Aceptar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js_content %}
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#inventario_table').DataTable({
+      language: {
+        "decimal": "",
+        "emptyTable": "No hay información",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Mostrar _MENU_ entradas",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "search": "Buscar:",
+        "zeroRecords": "Sin resultados encontrados",
+        "buttons": {
+          "copy": "Copiar",
+          "excel": "Exportar a excel",
+          "pdf": "Exportar a PDF",
+          "print": "Imprimir"
+        },
+        "paginate": {
+          "first": "Primero",
+          "last": "Ultimo",
+          "next": "Siguiente",
+          "previous": "Anterior"
+        }
+      },
+      "paging": true,
+      "pageLength": 50,
+      "lengthChange": false,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+      "scrollCollapse": true,
+      "buttons": ["copy", "excel", "pdf", "print"]
+    }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+  });
+
+  $('#button_generar_factura').click(function(){
+    $('#modal-generar-factura').modal('hide');
+    $('#form').submit();
+  });
+
+  $('#button_generar_factura_envio').click(function(){
+    $('#modal-generar-factura-envio').modal('hide');
+    $('#form_envio').submit();
+  });
+</script>
+{% endblock %}

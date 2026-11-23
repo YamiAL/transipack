@@ -1,0 +1,263 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Listado de traslados
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> Traslados </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content"
+          style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+          <div class="container-fluid">
+            <form id="filter_form" action="" method="GET">
+              <input type="hidden" name="page" id="page_selector" value="" />
+              <div class="row">
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Fecha_Entrega_inicio.label_tag }}
+                    {{ entregas_filter.form.Fecha_Entrega_inicio }}
+                  </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Fecha_Entrega_fin.label_tag }}
+                    {{ entregas_filter.form.Fecha_Entrega_fin }}
+                  </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Hora_Salida.label_tag }}
+                    {{ entregas_filter.form.Hora_Salida }}
+                  </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Hora_Llegada.label_tag }}
+                    {{ entregas_filter.form.Hora_Llegada }}
+                  </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Transportista.label_tag }}
+                    {{ entregas_filter.form.Transportista }}
+                  </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Estado.label_tag }}
+                    {{ entregas_filter.form.Estado }}
+                  </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.HBL.label_tag }}
+                    {{ entregas_filter.form.HBL }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ entregas_filter.form.Destinatario_CI.label_tag }}
+                    {{ entregas_filter.form.Destinatario_CI }}
+                  </div>
+                </div>
+                <div class="col-xl-6 col-lg-4 col-md-4 col-sm-12">
+                  <a href="{{ request.path }}" style="margin-top: 32px; float: right;" class="btn btn-primary">Limpiar</a>
+                  <button type="submit" style="margin-top: 32px; float: right; margin-right: 10px;" class="btn btn-primary">Filtrar</button>
+                </div>
+              </div>
+            </form>
+            <hr>
+            <div class="row">
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                <label>Acciones a ejecutar sobre filas seleccionadas</label>
+                <select id="accion_tabla" name="accion_tabla" class="form-control" style="width: 100%;">
+                  <option value="0">---------</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content"
+          style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+          <div class="container-fluid">
+            <table id="inventario_table" class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="text-align: center;">
+                    <input type="checkbox" id="select_all_table"  />
+                    Seleccionar
+                  </td>
+                  <!-- <th>id</td> -->
+                  <th>Fecha del traslado</td>
+                  <th>Hora de salida</td>
+                  <th>Hora de regreso</td>
+                  <th>Transportista</td>
+                  <th>Estado</td>
+                  <th>Opciones</td>
+                </tr>
+              </thead>
+              <tbody>
+                {% for current_entrega in page_obj %}
+                <tr>
+                  <td style="text-align: center;"><input type="checkbox" name="entrega_id" value="{{current_entrega.id}}"></td>
+                  <!-- <td>{{current_entrega.id}}</td> -->
+                  <td>{{current_entrega.Fecha_Entrega}}</td>
+                  <td>{{current_entrega.Hora_Salida|time:"g:iA"}}</td>
+                  <td>{{current_entrega.Hora_Llegada|time:"g:iA"}}</td>
+                  <td>{{current_entrega.Chapa}}</td>
+                  <td>{{current_entrega.Estado}}</td>
+                  <td>
+                    <a href="{% url 'entrega_detail' current_entrega.id %}" class="btn btn-block btn-primary"> Detalles </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+              <ul class="pagination">
+                <!--Info de paginacion-->
+                <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                <!--Boton anterior-->
+                <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                <!--Boton Pagina 1-->
+                <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+                {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                {% endif %}
+                <!--Boton Ultima pagina 1-->
+                {% if page_obj.paginator.num_pages > 1 %}
+                <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                {% endif %}
+                <!--Boton Siguiente-->
+                <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+  $( document ).ready(function() {
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      });//.buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+  });
+
+            //Paginacion
+            function paginator_link(page){
+              $('#page_selector').val(page);
+              $('#filter_form').submit();
+            }
+  </script>
+
+{% endblock %}

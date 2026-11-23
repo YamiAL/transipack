@@ -1,0 +1,358 @@
+
+{% load static %}
+{% load delete_underscore %}
+{% load qr_code %}
+<html>
+
+<head>
+    <!-- {% block css_content %} -->
+    <link rel="stylesheet" href="{% static '/plugins/barcode/JsBarcode.css' %}"> 
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/code39_all.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39_L.css' %}">   
+    <!-- {% endblock %} -->
+
+    <style>
+        @page {
+            /* Configuracion general de la hoja */
+            /* size: a4 landscape; */
+            size: a4; 
+            margin: 1cm, 1cm, 1cm, 1cm;
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 180pt;
+                width: 505pt;
+                top: 810pt;
+                height: 20pt;
+            }
+        }
+
+        th,
+        th {
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 8px;
+            padding: 2px;
+            word-wrap: break-word,
+        }
+
+        .first-td {
+            font-size: 8px;
+            padding: 1px;
+            word-wrap: break-word,
+        }
+
+        .table-info-td {
+            font-size: 6px;
+            padding: 0.8px;
+            word-wrap: break-word,
+        }
+
+        #descripcion_cargas {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 1px;
+        }
+
+        #footer_content label{
+            font-size: 8px;
+        }
+        td.data{
+            font-size: 3;
+        }
+    </style>
+</head>
+
+<body>
+    {% for paquete in listado_paquetes %}
+    {% if paquete.No_Contenedor %}
+      <table border="1">
+        <tbody>
+            <tr>
+                <td class="header-td data" colspan="6" ><strong>SHIPPER:</strong> <br/> {{ paquete.Remitente.Nombre_Remitente }}</td>
+                <td class="header-td data" colspan="3"><strong>HBL:  </strong></td>
+                <td class="header-td data" colspan="3">{{ paquete.HBL }}</td>
+            </tr>
+ 
+            <tr>
+                <td class="header-td data" colspan="6"  rowspan="1"><strong>Consignee:</strong>
+
+                <strong> {{ paquete.Destinatario.Nombre }} </strong>
+                <br/>
+
+                {{ paquete.Destinatario.Direccion }},{{ paquete.Destinatario.Provincia }},Cuba
+                <br/>
+                CI:{{ paquete.Destinatario.CI }}
+                <br/>
+                Teléfono:{{ paquete.Destinatario.Telefono }}
+                </td>
+                <td class="header-td data" colspan="3" rowspan="2">
+
+                <img style="height: 100%; width: 100%;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo_1.jpeg' %}" />
+                </td>
+                <td class="header-td data" colspan="3" rowspan="2"><strong>CONSIGNEE:</strong>
+
+                    EUPIERREZ BUSINESS SERVICES S.A. DE C.V. Río Lerma #26 Col. Cuauhtémoc,Alcaldía Cuauhtémoc, C.P. 06500 Ciudad de México, México Teléf.: (+52) 22 9144 3283 e-mail: comercial@eupierrezservices.com
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td data" colspan="6"><strong>NOTIFY:</strong>
+
+                <strong> {{ paquete.Destinatario.Nombre }} </strong>
+                <br/>
+                {{ paquete.Destinatario.Direccion }},{{ paquete.Destinatario.Provincia }},Cuba
+                <br/>
+                CI:{{ paquete.Destinatario.CI }}
+                <br/>
+                 Teléfono:{{ paquete.Destinatario.Telefono }}
+                </td>
+            </tr>
+             <tr>
+                <!-- <td class="header-td data" colspan="6"><strong>NOTIFY:</strong>
+
+                <strong> {{ paquete.Destinatario.Nombre }} </strong>
+                <br/>
+                {{ paquete.Destinatario.Direccion }},{{ paquete.Destinatario.Provincia }},Cuba
+                <br/>
+                CI:{{ paquete.Destinatario.CI }}
+                <br/>
+                 Teléfono:{{ paquete.Destinatario.Telefono }}
+                </td> -->
+                <td class="header-td data" colspan="3"><strong>VESSEL:</strong>
+                    {{ paquete.buque }}
+                </td>
+                <td class="header-td data" colspan="3"><strong>PORT OF LOADING:</strong>
+                    {{ paquete.Agencia.Pais }}
+                </td>
+                <td class="header-td data" colspan="6" ><strong>FOR DELIVERY PLEASE REFER TO:</strong>
+                    <p class="row" style="font-size: 4"> <strong>  CUBANACAN EXPRESS S.A </strong> </p>
+                    Calle Retiro No. 470, entre Calzada Manglar y Calle Santa Marta,Centro Habana, La Habana, Cuba,
+                    Lourdes Duque Valdés,
+                    Telf: +53 78736660
+                    comercial@cubex.tur.cu
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td data" colspan="3"><strong>PORT OF DISCHARGE:</strong>
+                    <br/>
+                    <strong>MARIEL, CUBA</strong>
+                </td>
+                <td class="header-td data" colspan="3"><strong>FINAL DESTINATION:</strong>
+                    {{ paquete.Destinatario.Provincia.Nombre }}
+                </td>
+                <td class="header-td data" colspan="3"><strong>MBL:</strong>
+                    {{ paquete.master_airwaibill }}
+                </td>
+                <td class="header-td data" colspan="3"><strong>MODALIDAD:</strong>
+                    {{ paquete.tipo_carga }}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>{{ paquete.contenedor }}</strong></td>
+                <td colspan="1">NO. of PKGS. </td>
+                <td colspan="6">DESCRIPTION OF PACKAGES AND GOODS </td>
+                <td colspan="1">GROOS WEIGHT(Kg)  </td>
+                <td colspan="2">MEASUREMENT(m3)</td>
+
+            </tr>
+             <tr>
+                <td colspan="2"><strong>Sello:</strong> {{ paquete.sello }}</td>
+                <td colspan="1">{{ paquete.cant_bultos }}</td>
+                <td colspan="6">{{ paquete.contenido }} </td>
+                <td colspan="1">{{ paquete.peso }}</td>
+                <td colspan="2">{{ paquete.volumen }}</td>
+
+            </tr>
+             <tr>
+                <td colspan="8"  rowspan="3"> Goods received by the Carrier as specified above in apparent good condition and order, unless otherwise indicated, to be transported to the place agreed, authorized or permitted in this document and subject to all the terms and conditions that appear
+                in this Bill of Lading that the merchant accepts, by accepting this document, any premises without prejudice to privileges and
+                customs.
+                The carrier is unaware of the details provided above as indicated by the sender; weight, measure, quantity, condition, content and
+                value of the goods.
+                In witness of which one (1) Original Bill of Lading is signed and delivered to the carrier at destination, if not indicated otherwise
+                above, the same (s) will be fulfilled the other (s), if any , will be canceled.
+                </td>
+                <td colspan="4" style="text-align:center" >FREIGHT DETAILS, CHARGES,ETC</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:center"> PREPAID</td>
+                <td colspan="2" style="text-align:center"> COLLECT</td>
+    
+            </tr>
+            <tr>
+                <td colspan="4" style="text-align:center"> FREIGHT AS AGREED</td>    
+            </tr>
+            <tr>
+                <td colspan="8" style="text-align:center; font-size:7" ><strong> ORIGINAL</strong></td>    
+                <td colspan="4" style="text-align:center; border-bottom: 0;" ></td>    
+            </tr>
+            
+            <tr>
+                <td colspan="4" style="text-align:left">
+                    <p>No. of ORIGINAL BL(s)</p>
+                    <p>Origin (0)</p>
+                    <p>Destination (3) </p>
+                </td>    
+                <td colspan="4" style="text-align:left">
+                    <p>PLACE & DATE OF ISSUE:</p>
+                    <p>{{paquete.Agencia.Pais}}</p>
+                    <p>Fecha </p>
+                </td>    
+                <td colspan="4" style="text-align:left; border-top: 0;">
+                    <img width="350px" height="200px"
+                        src="{{request.scheme}}://{{request.get_host}}/media/QR/paquete_{{paquete.HBL}}.png" />
+                </td>    
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+
+    {% if paquete.AWB %}
+
+    <table>
+        <tbody>
+            <tr>                
+                <td class="header-td data" colspan="4">
+                  <p style="text-align:center; font-size:5"> <strong >HOUSE AWB {% if paquete.AWB %}{{paquete.AWB}}{% else %}{{paquete.contenedor}}{% endif %}</strong> </p>  
+                </td>   
+            </tr>
+        </tbody>
+    </table>
+    
+    <table border="1">
+        <tbody>
+            <tr style="height: 50px;">             
+                <td class="header-td data" colspan="2">HAWB Number</td>   
+                <td class="header-td data" colspan="8" style="text-align:center">Service</td>   
+                <td class="header-td data" colspan="2">AWB</td>   
+            </tr>  
+            <tr style="height: 50px;">             
+                <td class="header-td data" colspan="2">{{paquete.HBL}}</td>   
+                <td class="header-td data" colspan="4">From: {% if paquete.Agencia.Pais.sigla %}{{paquete.Agencia.Pais.sigla}}{% else %}{{paquete.Agencia.Pais.pais}}{% endif %}</td>   
+                <td class="header-td data" colspan="4">To: {{paquete.Destinatario.Provincia.Nombre}}</td>   
+                <td class="header-td data" colspan="2">{{paquete.master_airwaibill}}</td>   
+            </tr>
+             <tr style="height: 25px;">             
+                <td class="header-td data" colspan="6">From</td>   
+                <td class="header-td data" colspan="6">To</td>     
+            </tr>
+             <tr style="height: 50px;">             
+                <td class="header-td data" colspan="6"> EUPIERREZ BUSINESS SERVICES S.A. DE C.V. Río Lerma #26 Col. Cuauhtémoc,Alcaldía Cuauhtémoc, C.P. 06500 Ciudad de México, México <br/>e-mail: comercial@eupierrezservices.com </td>   
+                <td class="header-td data" colspan="6"> CUBANACAN EXPRESS Calle Retiro No. 470, entre Calzada Manglar y Calle Santa Marta,Centro Habana, La Habana, Cuba,
+                    Lourdes Duque Valdés,<br/>
+                    e-mail:comercial@cubex.tur.cu</td>     
+            </tr>
+             <tr style="height: 25px;">             
+                <td class="header-td data" colspan="2">PHONE</td>   
+                <td class="header-td data" colspan="4"> (+52) 22 9144 3283</td> 
+                <td class="header-td data" colspan="2">PHONE</td>   
+                <td class="header-td data" colspan="4">(+53) 78736660</td>     
+            </tr> 
+            <tr style="height: 25px;">             
+                <td class="header-td data" colspan="6">SHIPPER NAME & DOCUMENT NUMBER</td>   
+                <td class="header-td data" colspan="6">CONSIGNEE NAME - ADDRESS - TELEPHONE & DOCUMENT NUMBER</td>   
+            </tr>   
+            <tr style="height: 25px;">             
+                <td class="header-td data" colspan="5">{{paquete.Remitente.Nombre_Remitente}}</td>   
+                <td class="header-td data" colspan="2"></td>   
+                <td class="header-td data" colspan="5">{{paquete.Destinatario.Nombre}} </td>   
+            </tr> 
+            <tr style="height: 25px;">             
+                <td class="header-td data" colspan="5">{% if paquete.Remitente.Telefono %}{{paquete.Remitente.Telefono}}{% else %}---{% endif %}</td>   
+                <td class="header-td data" colspan="2">TEL</td>   
+                <td class="header-td data" colspan="5">{{paquete.Destinatario.Telefono}}</td>   
+            </tr> 
+            <tr style="height: 25px;">             
+                <td class="header-td data" colspan="5">{% if paquete.Remitente.Direccion %}{{paquete.Remitente.Direccion}}{% else %}---{% endif %}</td>   
+                <td class="header-td data" colspan="2">DIR</td>   
+                <td class="header-td data" colspan="5">{{paquete.Destinatario.Direccion}}</td>   
+            </tr>
+            <tr>             
+                <td class="header-td data" colspan="5">{% if paquete.Remitente.Pasaporte_DNI %}{{paquete.Remitente.Pasaporte_DNI}}{% else %}---{% endif %}</td>   
+                <td class="header-td data" colspan="2">DOC</td>   
+                <td class="header-td data" colspan="5">{{paquete.Destinatario.CI}}</td>   
+            </tr> 
+            <tr>             
+                <td class="header-td data" colspan="3">MASTER AIRWAIBILL</td>   
+                <td class="header-td data" colspan="3">CARRIER</td>   
+                <td class="header-td data" colspan="3">ACCOUNTING INFORMATION</td>   
+                <td class="header-td data" colspan="3">ROUTING</td>   
+            </tr>
+            <tr>             
+                <td class="header-td data" colspan="3">AWB: {{paquete.master_airwaibill}}</td>   
+                <td class="header-td data" colspan="3">{{paquete.carrier}}</td>   
+                <td class="header-td data" colspan="3">AWB: {{paquete.accounting_information}}</td>   
+                <td class="header-td data" colspan="3">{{paquete.Agencia.Pais.pais}} - {{paquete.Destinatario.Provincia.Sigla}}</td>   
+            </tr> 
+            <tr>             
+                <td class="header-td data" colspan="12">DESCRIPTION OD GOODS</td>      
+            </tr> 
+            <tr style="height:100">             
+                <td class="header-td data" colspan="12" > {{paquete.contenido}} </td>      
+            </tr>  
+            <tr>             
+                <td class="header-td data" colspan="2">WEIGTH (Kg)</td>   
+                <td class="header-td data" colspan="2">{{paquete.peso}}</td>   
+                <td class="header-td data" colspan="8" rowspan="3"><img style="height: 100%; width: 100%;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo_1.jpeg' %}" /></td>   
+            </tr> 
+             <tr>             
+                <td class="header-td data" colspan="2">(DECLARED VALUE)</td>   
+                <td class="header-td data" colspan="2">
+                    
+                </td>   
+            </tr>
+             <tr>             
+                <td class="header-td data" colspan="2">ADDITIONAL CHARGES</td>   
+                <td class="header-td data" colspan="2">{% if paquete.cargos_extra %}{{paquete.cargos_extra}}{% else %}---{% endif %}</td>   
+            </tr> 
+             <tr>             
+                <td class="header-td data" colspan="10">SHIPPER'S SIGNATURE</td>      
+                <td class="header-td data" colspan="2">DATE</td>      
+            </tr>
+            <tr>             
+                <td class="header-td data" colspan="10" rowspan="2">
+                    <img width="350px" height="200px"
+                        src="{{request.scheme}}://{{request.get_host}}/media/QR/paquete_{{paquete.HBL}}.png" />
+                </td>      
+                <td class="header-td data" colspan="2">{{paquete.fecha_recepcion|date:"d/m/Y"}}</td>      
+            </tr>
+            <tr>             
+                <td class="header-td data" colspan="2">{% if paquete.AWB %}{{paquete.AWB}}{% else %}{{paquete.contenedor}}{% endif %}</td>      
+            </tr>
+            <tr>             
+                <td class="header-td data" colspan="12">COPIES OF DOCUMENT ARE ORIGINALS AND HAVE THE SAME VALIDITY</td>      
+            </tr>
+             <tr>             
+                <td class="header-td data" colspan="6">Remitente: {{paquete.Remitente.Nombre_Remitente}} </td>      
+                <td class="header-td data " colspan="6"> Destinatario: {{paquete.Destinatario.Nombre}}</td>      
+            </tr>
+            <tr style="height:50px;">             
+                <td class="header-td data" colspan="12" style="font-size:6;font-weight: bold;text-align: center;">{{paquete.Destinatario.Provincia.Sigla}} {% if paquete.AWB %}{{paquete.AWB}}{% else %}{{paquete.contenedor}}{% endif %}</td>      
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+   
+    <div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div> 
+    {% endfor %}
+   
+    {% block js_content %}
+    <script type="text/javascript" src="{% static '/plugins/htmlbarcode_src/code39.js' %}"></script>          
+    <script type="text/javascript" src="{% static '/plugins/barcode/JsBarcode.all.min.js ' %}"></script>         
+    <script type="text/javascript">   
+        
+        JsBarcode(".barcode").init();
+    </script>         
+    {% endblock %}
+</body>
+
+</html>

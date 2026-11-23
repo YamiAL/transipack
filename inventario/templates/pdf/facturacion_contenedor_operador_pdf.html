@@ -1,0 +1,181 @@
+{% load static %}
+{% load delete_underscore %}
+{% load qr_code %}
+<html>
+
+<head>
+    <style>
+        @page {
+            /* Configuracion general de la hoja */
+            /* size: a4 landscape; */
+            size: a4; 
+            margin: 1cm, 1cm, 1cm, 1cm;
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 180pt;
+                width: 505pt;
+                top: 810pt;
+                height: 20pt;
+            }
+        }
+
+        th,
+        th {
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 8px;
+            padding: 2px;
+            word-wrap: break-word,
+        }
+
+        .first-td {
+            font-size: 8px;
+            padding: 1px;
+            word-wrap: break-word,
+        }
+
+        .table-info-td {
+            font-size: 6px;
+            padding: 0.8px;
+            word-wrap: break-word,
+        }
+
+        #descripcion_cargas {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 1px;
+        }
+
+        #footer_content label{
+            font-size: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            <tr class="header-td" style="text-align: center;">
+                <td class="header-td" colspan="4">
+					<img style="height: 50%; width: 30%;" src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo.png' %}" />
+				</td>
+                <td class="header-td" colspan="8">
+                    
+                    <h1 style="text-align: center; font-size: 10px;">COMPROBANTE DE ENTREGA DE CONTENEDOR {{data.No_Contenedor}}<br> A OPERADOR: {{data.Operador.Nombre}}
+                        {% if totales_contenedor.id_factura %}
+                        <hr>
+                        No Facturación: {{totales_contenedor.id_factura}}
+                    </h1> 
+                    {% else %}
+                    <h1 style="text-align: left; font-size: 10px; margin-left: 180px;">VISTA PREVIA DEL COMPROBANTE</h1>    
+                    {% endif %}
+                </td>
+                <td class="header-td" colspan="4">
+                    <!-- <img width="100px" height="100px"
+                        src="{{request.scheme}}://{{request.get_host}}/media/QR/factura_{{current_factura.id_factura}}.png" /> -->
+                    {% qr_from_text qr size="s" image_format="png" error_correction="L" %}
+
+                    {% if totales_contenedor.id_factura %}
+                    <h1 style="text-align: left; font-size: 10px; margin-left: 0px;">Fecha de facturación: {{fecha_factura|date:"d/m/Y" }}</h1> 
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <table border="0.5" style="border-collapse: collapse; text-align: center;">
+        <tbody>
+            <tr class="header-td" style="text-align: center;">
+                <td colspan="12" style="text-align: center;" class="first-td"><strong>DETALLES DE LA FACTURA DEL CONTENEDOR/GUÍA AÉREA: {{data.No_Contenedor}}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <table border="0.5" style="border-collapse: collapse; text-align: center;">
+        <tbody>
+            <tr>
+                <td class="table-info-td" style="font-size: 9px;font-size: small;"><strong>HBL</strong></td>
+                <td class="table-info-td" style="font-size: 9px;font-size: small;"><strong>CANTIDAD DE BULTOS</strong></td>
+                <td class="table-info-td" style="font-size: 9px;font-size: small;"><strong>IMPORTE TRANSCARGO</strong></td>
+                <td class="table-info-td" style="font-size: 9px;font-size: small;"><strong>SEGURO DE CARGA</strong></td>
+                <td class="table-info-td" style="font-size: 9px;font-size: small;"><strong>SOBREDIMENSIÓN</strong></td>
+                <td class="table-info-td" style="font-size: 9px;font-size: small;"><strong>TRANSPORTACIÓN</strong></td>
+            </tr>
+            {% for current_data in totales_contenedor.Facturas %}
+            <tr> <!-- |floatformat:2-->
+                <td class="table-info-td" style="font-size: 8px;font-size: small;">{{current_data.Inventarios}}</td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;">{{current_data.Cantidad_Bultos_Total}}</td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;">{% if current_data.Importe_Transcargo %}{{current_data.Importe_Transcargo}} MN {% else %} 0 MN {% endif %}</td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;">{% if current_data.Importe_Seguro_Carga %}{{current_data.Importe_Seguro_Carga}} MN {% else %} 0 MN {% endif %}</td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;">{% if current_data.Importe_Sobredimension %}{{current_data.Importe_Sobredimension}} MN {% else %} 0 MN {% endif %}</td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;">{% if current_data.Importe_Transportacion %}{{current_data.Importe_Transportacion}} MN {% else %} 0 MN {% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <table>
+		<tbody>
+			<tr>
+                <td class="table-info-td" style="font-size: 10px;font-size: small;" colspan="2"><strong>SUBTOTALES</strong></td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;"><strong>{{totales_contenedor.Cantidad_Bultos_Total}}</strong></td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;"><strong>{{totales_contenedor.Importe_Transcargo_Total|floatformat:2}} MN</strong></td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;"><strong>{{totales_contenedor.Importe_Seguro_Carga_Total|floatformat:2}} MN</strong></td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;"><strong>{{totales_contenedor.Importe_Sobredimension_Total|floatformat:2}} MN</strong></td>
+                <td class="table-info-td" style="font-size: 8px;font-size: small;"><strong>{{totales_contenedor.Importe_Transportacion_Total|floatformat:2}} MN</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td class="first-td"><strong>DERECHOS ADUANALES: {{totales_contenedor.Importe_Derecho_Aduanal_Total|floatformat:2}} MN </strong></td>
+                <td class="first-td"><strong>SERVICIOS ADUANALES: {{totales_contenedor.Importe_Servicio_Aduanal_Total|floatformat:2}} MN </strong></td>
+                <td class="first-td"><strong>CARGOS EXTRA: {{totales_contenedor.Importe_Recargo_Total|floatformat:2}} MN </strong></td>
+                <td class="first-td"><strong>IMPORTE TOTAL A PAGAR: {{totales_contenedor.Importe_Total_Factura|floatformat:2}} MN </strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    {% if totales_contenedor.id_factura %} 
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td class="first-td" colspan="2">
+                    <strong>ENTREGADO POR</strong><br>
+                    Nombre y apellidos: <br> {{ totales_contendor.user_fact }} <br>
+                    Fecha:
+                </td>
+                <td class="first-td" colspan="2">
+                    <strong>RECIBIDO POR</strong><br>
+                    Nombre y apellidos <br>
+                    Carnet de identidad<br>
+                    Fecha
+                </td>
+            </tr>
+            <tr>
+                <td class="first-td" colspan="4">
+                    
+                </td>
+            </tr>
+            <tr>
+                <td class="first-td" colspan="2">
+                    <strong>FACTURADO POR:</strong> {{current_factura.user_fact}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+    <div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div> 
+    <div id="footer_content">
+        <label>Sistema de Gestión de Paquetería TRANSIPACK v 1.0. Desarrollado por SITRANS</label>
+    </div>
+</body>
+
+</html>

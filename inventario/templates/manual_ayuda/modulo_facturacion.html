@@ -1,0 +1,472 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+
+{% block css_content %} 
+
+  <!-- ** CSS Plugins Needed for the Project ** -->
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="{% static '/manual_ayuda/plugins/bootstrap/bootstrap.min.css' %}">
+  <!-- themefy-icon -->
+  <link rel="stylesheet" href="{% static '/manual_ayuda/plugins/themify-icons/themify-icons.css' %}">
+  <!--Favicon-->
+  <link rel="icon" href="{% static '/manual_ayuda/images/favicon.png" type="image/x-icon' %}">
+  <!-- Main Stylesheet -->
+  <!-- <link href="{% static '/manual_ayuda/style_book.css" rel="stylesheet" media="screen' %}"/> -->
+
+   <link rel="stylesheet" href="{% static '/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static '/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}"> 
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static '/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"> 
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static '/plugins/jqvmap/jqvmap.min.css' %}"> 
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static '/dist/css/adminlte.css' %}"> 
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static '/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+  <!-- topics -->
+  <section class="section mt-5">
+    <div class="container">
+      <div class="row justify-content-center">
+
+       
+
+        <!-- Comprobante de destinatario -->
+          <div class="card " style="width: 90%; height:50rem" id="start">
+              <div class="card-header">
+                <h5 class="card-title text-bold">Comprobantes de destinatarios -> Nuevo comprobante</h5>
+              </div>
+              <div class="card-body">
+              <p class="card-text"><strong>Nuevo comprobante de destinatario:</strong> <br/><br/>
+                1- Seleccionar la opción <strong>Comprobantes de destinatarios </strong>en el menú <br/> 
+                2- En el submenú desplegado debe seleccionar la opción <strong>Nuevo comprobante</strong> <br/> 
+                <strong>* Los comprobantes pueden ser creados de dos formas:</strong><br/>
+                  -Escaneando el HBL en las cargas<br/>
+                  -Seleccionando los HBL en el listado en formato tabular <br/><br/>
+              <strong>Elaborar comprobante desde escáner</strong></p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_nuevo_escaner.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              </div>
+               <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+          <div class="card page" style="width: 90%; height:50rem">
+            <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Nuevo comprobante</h5>
+            </div>
+            <div class="card-body">
+              
+              <p class="card-text mt-3 ">
+                1- Dar click en el botón <strong>Elaborar comprobante desde escáner</strong><br/>
+                2- Seleccionar campo de entrada <strong>Listado de HBL</strong><br/>
+                3- Dar click en el botón Aceptar<br/>
+                <strong>* Los datos número de contenedor y manifiesto no son obligatorios</strong><br/>
+              </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_nuevo_escaner_formulario.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Nuevo comprobante</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Elaborar comprobante marcando en el listado:</strong> <br/><br/>1- Seleccionar los HBL en el listado mostrado en formato tabular <br/> 2- Seleccionar <strong>Comprobante de envío</strong> o <strong>Comprobante de ena o menaje</strong> en las acciones a ejecutar sobre filas seleccionadas</p>
+               <img src="{% static 'manual_ayuda/images/comprobante_destinatario_nuevo_tabla.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              
+
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Nuevo comprobante</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mt-3 ">
+                <strong>Si selecciona Comprobante de envío</strong><br/>
+                3- Agregar valor de cargos extra si procede<br/>
+                4- Incluir costos de transportación si la entrega es puerta a puerte.<br/>  <strong>* Si la entrega es presencial no se deben incluir los costos de transportación</strong><br/>
+                5- Dar click en el botón <strong>Aceptar</strong><br/>
+              </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_nuevo_envio_con_transporte.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 61rem;height: 350px;">
+              
+
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Nuevo comprobante</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mt-3 ">
+                <strong>Si selecciona Comprobante de ena o menaje</strong><br/>
+                3- Agregar aranceles aduanales<br/>
+                4- Agregar valor de cargos extra si procede<br/>
+                5- Incluir costos de transportación si la entrega es puerta a puerte. <br/><strong>* Si la entrega es presencial no se deben incluir los costos de transportación </strong><br/>
+                6- Dar click en el botón <strong>Aceptar</strong><br/>
+              </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_nuevo_ena_o_menaje_con_transporte.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 61rem;height: 350px;">
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Listado de comprobantes</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Ver el listado de comprobantes de destinatario:</strong> <br/><br/>1- Seleccionar la opción <strong>Comprobantes de destinatarios </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Listar</strong></p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_listado.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Desestimar comprobante</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Desestimar comprobante de destinatario</strong> <br/><br/>1- Seleccionar la opción <strong>Comprobantes de destinatarios </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Listar</strong>
+              <br/>3- Seleccionar comprobante en el listado mostrado en formato tabular <br/> 4- Seleccionar <strong>Desestimar</strong> en las acciones a ejecutar sobre filas seleccionadas
+              </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_acciones_filas.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 61rem;height: 350px;">
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+            <!-- Entrega presencial -->
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega presencial</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Entrega presencial de cargas</strong> <br/><br/>1- Seleccionar la opción <strong>Comprobantes de destinatarios </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Listar</strong>
+              <br/>3- Seleccionar comprobante en el listado mostrado en formato tabular <br/> 4- Seleccionar <strong>Declarar como cobrado</strong> en las acciones a ejecutar sobre filas seleccionadas
+              </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_acciones_filas.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 61rem;height: 350px;">
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega presencial -> Comprobantes cobrados</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Entrega presencial de cargas</strong> <br/><br/>1- Seleccionar la opción <strong>Comprobantes de destinatarios </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Cobrados</strong>
+              </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_destinatario_presencial_cobrado.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 61rem;height: 350px;">
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+            <!-- Entrega puerta a puerta -->
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Entrega de cargas puerta a puerta</strong> <br/><br/>1- Seleccionar la opción <strong>Traslados</strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Programar nuevo traslado</strong><br/>
+                <strong>* Los traslados pueden ser creados de dos formas:</strong><br/>
+                  -Escaneando el código QR en los comprobantes de destinatario<br/>
+                  -Seleccionando los comprobantes de destinatario en el listado en formato tabular <br/>
+                <br/>
+              </p>
+              <img src="{% static 'manual_ayuda/images/programar_traslado.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              </p>
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+          <!-- Entrega puerta a puerta -->
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta -> Programar nuevo traslado</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mt-3 "><strong>Programar traslado con escáner</strong></p>
+              <p class="card-text ">1- Marcar <strong>Programar traslado con escáner</strong></p>
+              <img src="{% static 'manual_ayuda/images/programar_traslado_escaner.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <p class="card-text ">
+                2- Seleccionar campo de entrada <strong>Listado de HBL</strong>.<br/>
+              </p>
+
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>  
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta -> Programar nuevo traslado</h5>
+            </div>
+            <div class="card-body">
+              
+              <img src="{% static 'manual_ayuda/images/programar_traslado_escaner_form.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <p class="card-text ">
+                3- Escanear código QR de los comprobantes.<br/>
+                4- Dar click en el botón <strong>Aceptar</strong>.<br/><br/>
+
+                Una vez programado el traslado, el usuario podrá ver los detalles del mismo; donde debe seleccionar entre las siguientes acciones a realizar sobre el traslado:<br/>
+                - Ejecutar<br/>
+                - Cancelar<br/>
+              </p>
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta -> Ejecutar traslado</h5>
+            </div>
+            <div class="card-body">
+              <img src="{% static 'manual_ayuda/images/traslado_programado.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <p class="card-text">
+                <strong>Si el usuario selecciona la opción Ejecutar</strong><br/>
+                1- Debe verificar la fecha de salida ingresada previamente<br/>
+                2- Debe verificar la hora de salida ingresada previamente<br/>
+                3- Debe verificar el transportista ingresado previamente<br/>
+              </p>             
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta -> Ejecutar traslado</h5>
+            </div>
+            <div class="card-body">   
+              <img src="{% static 'manual_ayuda/images/traslado_ejecutar.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <p class="card-text">
+                4- Debe dar click en el botón <strong>Aceptar</strong>.<br/><br/>
+                El traslado pasará a estar en ejecución indicando que las cargas están siendo transportadas.
+              </p>             
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta -> Ejecutar traslado</h5>
+            </div>
+            <div class="card-body">            
+              <img src="{% static 'manual_ayuda/images/traslado_ejecutado.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;"> 
+              <p class="card-text">
+                5- Debe dar click en el botón <strong>Listado del transportista</strong> para imprimir el documento donde se relacionan todas las cargas que serán transportadas<br/>
+                6- Debe dar click en el botón <strong>Comprobante de entrega</strong> para imprimir el documento con el que debe ir el transportista a hacer la liquidación en economía<br/>
+                7- Debe dar click en el botón <strong>Concluir</strong> para concluir el traslado cuando el transportista liquide el dinero de las cargas trasladadas en economía. <br/>
+              </p>
+             
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de destinatarios -> Entrega puerta a puerta -> Cancelar traslado</h5>
+            </div>
+            <div class="card-body">            
+              <strong>Si el usuario selecciona la opción Cancelar</strong><br/><br/>   
+              <p class="card-text">
+                1- Debe dar click en el botón <strong>Cancelar</strong>.<br/>
+                <img src="{% static 'manual_ayuda/images/traslado_cancelar.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;"> <br/>
+                2- Debe dar click en el botón <strong>Aceptar</strong> para confirmar la cancelación del traslado.<br/>
+              </p>           
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Traslados -> Listado de traslados</h5>
+            </div>
+            <div class="card-body">            
+              <p class="card-text"><strong>Ver el listado de traslados:</strong> <br/><br/>
+                1- Seleccionar la opción <strong>Traslados </strong>en el menú. <br/> 
+                2- En el submenú desplegado debe seleccionar la opción <strong>Traslados</strong>.</p><br/> 
+              <img src="{% static 'manual_ayuda/images/traslado_listado.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500px;height: 350px;">         
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Traslados -> Mercancías en traslado -> Declarar como entregadas</h5>
+            </div>
+            <div class="card-body">   
+                <p>         
+                1- Seleccionar la opción <strong>Traslados </strong>en el menú. <br/> 
+                2- En el submenú desplegado debe seleccionar la opción <strong>Mercancías en traslado</strong>.<br/>
+                3- Seleccionar las cargas que serán declaradas como entregadas en el listado en formato tabular.<br/> 
+                4- Seleccionar opción <strong>Declarar como entregadas</strong> en las acciones a ejecutar sobre filas seleccionadas.<br/> 
+                </p>
+              <img src="{% static 'manual_ayuda/images/mercancias_en_traslado.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 60rem;height: 350px;">         
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Traslados -> Mercancías en traslado -> Devolver mercancías en traslado</h5>
+            </div>
+            <div class="card-body">   
+                <p>         
+                1- Seleccionar la opción <strong>Traslados </strong>en el menú. <br/> 
+                2- En el submenú desplegado debe seleccionar la opción <strong>Mercancías en traslado</strong>.<br/>
+                3- Seleccionar las cargas que serán devueltas al almacén en el listado en formato tabular.<br/> 
+                4- Seleccionar opción <strong>Reincorporar a almacén</strong> en las acciones a ejecutar sobre filas seleccionadas.<br/> 
+                </p>
+              <img src="{% static 'manual_ayuda/images/mercancias_en_traslado.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 60rem;height: 350px;">         
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de operador -> Por cobrar</h5>
+            </div>
+            <div class="card-body">   
+                <p>         
+                Para ver el listado de los comprobantes de operador <strong>pendientes de cobro</strong> debe seguir los siguientes pasos:<br/>
+                1- Seleccionar la opción <strong>Comprobantes de operador </strong>en el menú. <br/> 
+                2- En el submenú desplegado debe seleccionar la opción <strong>Por cobrar</strong>.<br/>
+                3- Seleccionar el comprobante que será declarado como cobrado en el listado en formato tabular.<br/> 
+                4- Seleccionar opción <strong>Declarar como cobrado</strong> en las acciones a ejecutar sobre filas seleccionadas.<br/> 
+                </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_operador_por_cobrar.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 60rem;height: 350px;">         
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Comprobantes de operador -> Cobrados</h5>
+            </div>
+            <div class="card-body">   
+                <p>       
+                Para ver el listado de los comprobantes de operador que fueron <strong>cobrados</strong> debe seguir los siguientes pasos:<br/>
+
+                1- Seleccionar la opción <strong>Comprobantes de operador </strong>en el menú. <br/> 
+                2- En el submenú desplegado debe seleccionar la opción <strong>Cobrados</strong>.<br/>
+                3- Seleccionar el comprobante que será declarado como cobrado en el listado en formato tabular.<br/> 
+                4- Seleccionar opción <strong>Declarar como cobrado</strong> en las acciones a ejecutar sobre filas seleccionadas.<br/> 
+                </p>
+              <img src="{% static 'manual_ayuda/images/comprobante_operador_por_cobrar.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 60rem;height: 350px;">         
+            </div>
+             <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div>
+
+       
+      </div>
+    </div>
+  </section>
+  <!-- /topics -->
+
+{% endblock %}
+
+{% block js_content %} 
+  
+<!-- jQuery -->
+<script src="{% static '/plugins/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("div.page").hide();
+  });
+
+  var $currElement = $("#start");
+    // $currElement.css("background", "red");
+  
+    $(".next").click(function () {
+    
+    if(!$currElement.next().length){
+      $currElement = $("#start");
+      $currElement.css("display","block");
+    }
+    $currElement.removeClass("visible");
+    $currElement.css("display","none");
+    $currElement = $currElement.next().fadeOut();
+    $currElement.css("display","block");
+    $currElement.addClass("visible");
+    });
+
+  var $currElementVisible = $(".visible");
+    $(".prev").click(function () {
+    
+    if(!$currElementVisible.prev().length){
+      $currElementVisible = $("#start");
+      $currElementVisible.css("display","block");
+    }
+    $currElement.removeClass("visible");
+    $currElementVisible.css("display","none");
+    $currElementVisible = $currElement.prev().fadeOut();
+    $currElementVisible.css("display","block");
+    $currElement.addClass("visible");
+    });
+
+</script>
+    
+{% endblock %}

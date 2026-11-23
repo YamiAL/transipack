@@ -1,0 +1,682 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Reporte de inventarios
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> Reporte de inventarios </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="GET">
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      <div class="row">
+                        <div class="col-12">
+                          <label>Búsqueda por inventario</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.No_Contenedor.label_tag }}
+                            {{ inventario_filter.form.No_Contenedor }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.AWB.label_tag }}
+                            {{ inventario_filter.form.AWB }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.HBL.label_tag }}
+                            {{ inventario_filter.form.HBL }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Manifiesto.label_tag }}
+                            {{ inventario_filter.form.Manifiesto }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Cantidad_Bultos.label_tag }}
+                            {{ inventario_filter.form.Cantidad_Bultos }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Peso.label_tag }}
+                            {{ inventario_filter.form.Peso }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Volumen.label_tag }}
+                            {{ inventario_filter.form.Volumen }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Contenido.label_tag }}
+                            {{ inventario_filter.form.Contenido }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Precio.label_tag }}
+                            {{ inventario_filter.form.Precio }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Agencia.label_tag }}
+                            {{ inventario_filter.form.Agencia }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Estado.label_tag }}
+                            {{ inventario_filter.form.Estado }}
+                          </div>
+                        </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                        <div class="col-12">
+                          <label>Búsqueda por datos personales</label>
+                        </div>
+                          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                            <div class="form-group">
+                              {{ inventario_filter.form.Destinatario_CI.label_tag }}
+                              {{ inventario_filter.form.Destinatario_CI }}
+                            </div>
+                          </div>
+                          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                            <div class="form-group">
+                              {{ inventario_filter.form.Destinatario_Nombre.label_tag }}
+                              {{ inventario_filter.form.Destinatario_Nombre }}
+                            </div>
+                          </div>
+                          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                            <div class="form-group">
+                              {{ inventario_filter.form.Destinatario_Telefono.label_tag }}
+                              {{ inventario_filter.form.Destinatario_Telefono }}
+                            </div>
+                          </div>
+                          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                            <div class="form-group">
+                              {{ inventario_filter.form.Pasaporte_DNI.label_tag }}
+                              {{ inventario_filter.form.Pasaporte_DNI }}
+                            </div>
+                          </div>
+                          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                            <div class="form-group">
+                              {{ inventario_filter.form.Destinatario_Provincia.label_tag }}
+                              {{ inventario_filter.form.Destinatario_Provincia }}
+                            </div>
+                          </div>
+                          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                            <div class="form-group">
+                              {{ inventario_filter.form.Destinatario_Municipio.label_tag }}
+                              {{ inventario_filter.form.Destinatario_Municipio }}
+                            </div>
+                          </div>
+                      </div>
+
+                      <hr>
+                      <div class="row">
+                        <div class="col-12">
+                          <label>Búsqueda por incidencias</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Incidencia.label_tag }}
+                            {{ inventario_filter.form.Incidencia }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Observ_Incidencia.label_tag }}
+                            {{ inventario_filter.form.Observ_Incidencia }}
+                          </div>
+                        </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                        <div class="col-12">
+                          <label>Búsqueda por ubicación en almacén</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Almacen.label_tag }}
+                            {{ inventario_filter.form.Almacen }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Ubicacion_Fila.label_tag }}
+                            {{ inventario_filter.form.Ubicacion_Fila }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Ubicacion_Columna.label_tag }}
+                            {{ inventario_filter.form.Ubicacion_Columna }}
+                          </div>
+                        </div>
+                      </div>  
+                      <div class="row">
+                        <div class="col-12">
+                          <label>Búsqueda por fechas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrada_Puerto_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrada_Puerto_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrada_Puerto_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrada_Puerto_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrada_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrada_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrada_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrada_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Nacionalizacion_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Nacionalizacion_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Nacionalizacion_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Nacionalizacion_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Traslado_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Traslado_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Traslado_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Traslado_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrega_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrega_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrega_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrega_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Pre_Cita_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Pre_Cita_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Pre_Cita_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Pre_Cita_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Devolución_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Devolución_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Devolución_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Devolución_hasta }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <button type="submit" style="margin-top: 32px;" class="btn btn-primary">Filtrar</button>
+                          <a href="{{ request.path }}" style="margin-top: 32px;"
+                            class="btn btn-primary">Limpiar</a>
+                        </div>
+                      </div>
+                    </form>
+                      {% if mostrar_listado %}
+                      <hr>
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Acciones a ejecutar sobre filas seleccionadas</label>
+                          <select id="accion_tabla" name="accion_tabla" class="form-control" style="width: 100%;">
+                            <option value="0">---------</option>
+                          </select>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                          <label>Importe Derecho Aduanal: {{derecho_aduanal.Importe_Derecho_aduanal__sum}} MN</label>
+                      </div>
+                      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                          <label>Importe Servicio Aduanal: {{servicio_aduanal.Importe_Servicio_aduanal__sum}} MN</label>
+                      </div>
+                      </div>
+                      {% endif %}
+                      
+                  </div>
+                </section>
+            </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    {% if mostrar_listado %}
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" id="operacion_tabla" name="operacion_tabla" value="" />
+                    <input type="hidden" id="id_almacen_tabla" name="id_almacen_tabla" value="" />
+                    <table id="inventario_table" class="table table-hover table-sm table-striped text-nowrap">
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;">
+                            <input type="checkbox" id="select_all_table"  />
+                            Seleccionar
+                          </td>
+                          <th>Manifiesto</td>
+                          <th>HBL</td>
+                          <th>Estado</td>
+                          <th>Nombre y apellidos del destinatario</td>
+                          <th>CI</td>
+                          <th>Almacén</td>
+                          <th>OPCIONES</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_inventario in page_obj %}
+                        <tr>
+                          <td style="text-align: center;"><input type="checkbox" name="inventario_id" value="{{current_inventario.id}}"></td>
+                          <td>{{current_inventario.Manifiesto}}</td>
+                          <td>{{current_inventario.HBL}}</td>
+                          <td>{{current_inventario.Estado}}</td>
+                          <td>{{current_inventario.Destinatario.Nombre}}</td>
+                          <td>{{current_inventario.Destinatario.CI}}</td>
+                          <td>{{current_inventario.Almacen}}</td>
+                          <td>
+                            <a href="{% url 'inventario_detail' current_inventario.id %}" class="btn btn-block btn-primary"> Detalles </a>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </form>
+                    {% else %}
+                    <p class="text-muted mb-0">Aplique filtros para consultar el inventario.</p>
+                    {% endif %}
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+<!-- modal-dialog-trasladar-almacen -->
+<div class="modal fade" id="modal-trasladar-almacen">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Trasladar de almacén</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            {{ form_trasladar_almacen.Almacen_Traslado.errors }}
+            {{ form_trasladar_almacen.Almacen_Traslado.label_tag }}
+            {{ form_trasladar_almacen.Almacen_Traslado }}
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_aceptar_traslado" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-nacionalizar-cargas -->
+<div class="modal fade" id="modal-nacionalizar-cargas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Nacionalizar cargas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a nacionalizar las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_nacionalizar_cargas" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-entregar-cargas -->
+<div class="modal fade" id="modal-entregar-cargas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Entregar cargas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a entregar las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_entregar_cargas" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+      $("#accion_tabla" ).change(function() {
+        //Accion de mover inventario
+        if ($("#accion_tabla" ).val() == '1'){
+          $("#operacion_tabla").val('mover_inventario');
+          $("#modal-trasladar-almacen" ).modal('show');
+        }
+        //Accion de nacionalizar cargas
+        if ($("#accion_tabla" ).val() == '2'){
+          $("#operacion_tabla").val('nacionalizar_cargas');
+          $("#modal-nacionalizar-cargas" ).modal('show');
+        }
+        //Accion de entregar cargas
+        if ($("#accion_tabla" ).val() == '3'){
+          $("#operacion_tabla").val('entregar_cargas');
+          $("#modal-entregar-cargas" ).modal('show');
+        }
+      });
+
+      //Acciones de mover inventario---------------------
+      $("#id_Almacen_Traslado" ).change(function() {
+        $("#id_almacen_tabla").val($("#id_Almacen_Traslado" ).val());
+      });
+
+      $('#modal-trasladar-almacen').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_aceptar_traslado').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de nacionalizar cargas---------------------
+      $('#modal-nacionalizar-cargas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_nacionalizar_cargas').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de entregar cargas---------------------
+      $('#modal-entregar-cargas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_entregar_cargas').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla
+      {% if mostrar_listado %}
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 400,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#inventario_table_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+      {% endif %}
+      //Fin de datatable------------------------------------------------------------------------------------
+
+            //Ajax de listado de municipios---------------------------------------------------------------------------
+      //Actualizacion al cambiar la provincia  
+      $("#id_Destinatario_Provincia").change(function () {
+        actualiza_municipio($("#id_Destinatario_Provincia").val());
+      });  
+
+      //Identificando si existe alguna provincia cargada al hacer get
+      const url = window.location.search;
+      const urlParametro = new URLSearchParams(url);
+      const id_provincia = urlParametro.get("Destinatario_Provincia");
+
+      if (id_provincia){
+        actualiza_municipio(id_provincia);
+      }
+      
+      //Actualiza el listado de municipios        
+      function actualiza_municipio(id_provincia){
+        //Captura si existe algun municipio en el request
+        const url = window.location.search;
+        const urlParametro = new URLSearchParams(url);
+        const id_municipio = urlParametro.get("Destinatario_Municipio");
+
+        //Eliminando todas las opiones existentes
+        $('#id_Destinatario_Municipio').empty().append('<option value="">---------</option>');
+
+        $.ajax({
+          url: '{% url 'ajax_municipio_load' %}',
+          method: 'GET',
+          data: {
+            'id_provincia': id_provincia
+          },
+          success: function (data) {
+            var obj = JSON.parse(data);
+
+            for (x of obj) {
+              if (id_municipio == x.pk){
+                $('#id_Destinatario_Municipio').append($('<option>', {
+                  selected: '',
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }else{
+                $('#id_Destinatario_Municipio').append($('<option>', {
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }
+            }
+          }
+        });
+        return;
+      }
+      //Fin de trabajo con municipios---------------------------------------------------------------------------
+      
+    });
+
+  //Paginacion
+  function paginator_link(page){
+    $('#page_selector').val(page);
+    $('#filter_form').submit();
+  }
+</script>
+
+{% endblock %}

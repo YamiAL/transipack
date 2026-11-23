@@ -1,0 +1,6 @@
+#barcode{
+    box-shadow: 0 0 20px rgba(0,139,253,0.25);
+    width: 300px;
+    margin: 30px 0px 30px 0px;
+    color: red;
+  }

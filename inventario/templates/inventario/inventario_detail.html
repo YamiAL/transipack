@@ -1,0 +1,449 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+
+
+{% block content %}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Detalles de la carga</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+          <li class="breadcrumb-item active">Detalles de carga</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-9">
+          <section class="content" style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+            <div class="row">
+              {% if current_registro.isFacturado%}
+              <div class="col-6">
+              {% else %}
+              <div class="col-12">
+              {% endif %}
+                <h4>Información general</h4>
+                <hr>
+              </div>
+              {% if current_registro.isFacturado %}
+              {% if current_registro.Estado != 'Entregado' %}
+              <div class="col-6">
+                  <img style="height: 70%; width: 65%;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/facturado.png' %}" />               
+              </div>
+              {% endif %}
+              {% endif %}
+              {% if current_registro.Estado == 'Entregado' %}
+              <div class="col-6">
+                  <img style="height: 80%; width: 75%;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/cobrado.png' %}" />               
+              </div>
+              {% endif %}
+
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Manifiesto:</label> <label style="font-weight: 500">{{current_registro.Manifiesto}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>HBL:</label> <label style="font-weight: 500">{{current_registro.HBL}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Cantidad de bultos:</label> <label style="font-weight: 500">{{current_registro.Cantidad_Bultos}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Volumen (m3):</label> <label style="font-weight: 500">{{current_registro.Volumen}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Peso (Kg):</label> <label style="font-weight: 500">{{current_registro.Peso}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Cargos extra:</label> 
+                  {% if current_registro.Precio != None %}
+                  <label style="font-weight: 500">{{current_registro.Precio}} MN</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Importe por derecho aduanal:</label> 
+                  {% if current_registro.Importe_Derecho_aduanal != None %}
+                  <label style="font-weight: 500">{{current_registro.Importe_Derecho_aduanal}} MN</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Importe por servicio aduanal:</label> 
+                  {% if current_registro.Importe_Servicio_aduanal != None %}
+                  <label style="font-weight: 500">{{current_registro.Importe_Servicio_aduanal}} MN</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Importe por Kg adicional:</label> 
+                  {% if current_registro.Importe_Kg_Adicional != None %}
+                  <label style="font-weight: 500">{{current_registro.Importe_Kg_Adicional|floatformat:2}} MN</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Almacén:</label> <label style="font-weight: 500">{{current_registro.Almacen}}</label>
+                </div>
+              </div>
+              {% if current_registro.Ubicacion_Fila %}
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Área:</label> <label style="font-weight: 500">{{current_registro.Ubicacion_Fila}}</label>
+                </div>
+              </div>
+              {% endif %}
+              {% if current_registro.Ubicacion_Columna %}
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Columna:</label> <label style="font-weight: 500">{{current_registro.Ubicacion_Columna}}</label>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Estado:</label> 
+                  {% if current_registro.Nacionalizado %}
+                  <label style="font-weight: 500">Carga nacionalizada {{current_registro.Estado}}</label>
+                  {% else %}
+                  <label style="font-weight: 500">Carga no nacionalizada {{current_registro.Estado}}</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  {% if current_registro.No_Contenedor %}
+                  <label>No. de Contenedor:</label> 
+                  <label style="font-weight: 500">{{current_registro.No_Contenedor}}</label>
+                  {% else %}
+                  <label>No. de guía aérea:</label> 
+                  <label style="font-weight: 500">{{current_registro.AWB}}</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Tipo de carga:</label> 
+                  <label style="font-weight: 500">{{current_registro.Categoria_Operacion}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              {% if current_registro.Fecha_Entrada_Puerto %}
+              <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group">
+                  <label>Fecha de entrada al puerto:</label> <label style="font-weight: 500">{{current_registro.Fecha_Entrada_Puerto}}</label>
+                </div>
+              </div>
+              {% endif %}
+              {% if current_registro.Fecha_Entrada %}
+              <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group">
+                  <label>Fecha de desagrupe:</label> <label style="font-weight: 500">{{current_registro.Fecha_Entrada}}</label>
+                </div>
+              </div>
+              {% endif %}
+              {% if current_registro.Fecha_Nacionalizacion %}
+              <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group">
+                  <label>Fecha de nacionalización:</label> <label style="font-weight: 500">{{current_registro.Fecha_Nacionalizacion}}</label>
+                </div>
+              </div>
+              {% endif %}
+              {% if current_registro.Fecha_Entrega %}
+              <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group">
+                  <label>Fecha de entrega:</label> <label style="font-weight: 500">{{current_registro.Fecha_Entrega}}</label>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Contenido:</label> 
+                  <p>{{current_registro.Contenido}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h4>Datos del destinatario</h4>
+                <hr>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Nombre y apellidos:</label> <label style="font-weight: 500">{{current_registro.Destinatario.Nombre}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Carnet de identidad:</label>
+                  {% if current_registro.Destinatario.CI != None %}
+                   <label style="font-weight: 500">{{current_registro.Destinatario.CI}}</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Pasaporte / DNI:</label>
+                  {% if current_registro.Destinatario.Pasaporte_DNI != None %} 
+                  <label style="font-weight: 500">{{current_registro.Destinatario.Pasaporte_DNI}}</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Provincia:</label> 
+                  {% if current_registro.Destinatario.Provincia != None %}
+                  <label style="font-weight: 500">{{current_registro.Destinatario.Provincia}}</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Municipio:</label> 
+                  {% if current_registro.Destinatario.Municipio != None %}
+                  <label style="font-weight: 500">{{current_registro.Destinatario.Municipio}}</label>
+                  {% else %}
+                  <label style="font-weight: 500">No definido</label>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Teléfono:</label> <label style="font-weight: 500">{{current_registro.Destinatario.Telefono}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Dirección:</label> <label style="font-weight: 500">{{current_registro.Destinatario.Direccion}}</label>
+                </div>
+              </div>  
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h4>Datos del remitente</h4>
+                <hr>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Nombre:</label> <label style="font-weight: 500">{{current_registro.Remitente.Nombre_Remitente}}</label>
+                </div>
+              </div>
+            </div>
+            {% if current_registro.Estado == 'Entregado' %}
+            <div class="row">
+              <div class="col-12">
+                <h4>Datos de la persona que recibió la carga</h4>
+                <hr>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Nombre y apellidos:</label> <label style="font-weight: 500">{{current_registro.Nombre_Entrega}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Carnet de identidad:</label> <label style="font-weight: 500">{{current_registro.CI_Entrega}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Pasaporte / DNI:</label> <label style="font-weight: 500">{{current_registro.Pasaporte_DNI_Entrega}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Provincia:</label> <label style="font-weight: 500">{{current_registro.Provincia_Entrega}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Municipio:</label> <label style="font-weight: 500">{{current_registro.Municipio_Entrega}}</label>
+                </div>
+              </div>
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Teléfono:</label> <label style="font-weight: 500">{{current_registro.Telefono_Entrega}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Dirección:</label> <label style="font-weight: 500">{{current_registro.Direccion_Entrega}}</label>
+                </div>
+              </div>  
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="form-group">
+                  <label>Cobrado por:</label> <label style="font-weight: 500">{{current_registro.User_Cobrador}}</label>
+                </div>
+              </div>  
+            </div>
+            {% endif %}
+            {% if current_registro.Estado == 'No localizable' %}
+            <div class="row">
+              <div class="col-12">
+                <h4>Información sobre la localización</h4>
+                <hr>
+              </div>
+              <div class="col-12">
+                <p>{{current_registro.Observ_No_Localizable}}</p>
+              </div>
+            </div>
+            {% endif %}
+            {% if current_registro.Estado == 'Salida de inventario' %}
+            <div class="row">
+              <div class="col-12">
+                <h4>Información sobre la eliminación del inventario</h4>
+                <hr>
+              </div>
+              <div class="col-12">
+                <p>{{current_registro.Observ_Devolucion}}</p>
+              </div>
+            </div>
+            {% endif %}
+            {% if current_registro.isFacturado or current_registro.Estado == 'Entregado'%}
+            <div class="row">
+              <div class="col-12">
+                <h4>Datos de importancia</h4>
+                <hr>
+              </div>
+            </div>
+            <div class="row">
+              {% if current_registro.isFacturado %}
+              <div class="col-6">
+                <p><strong>Facturador:</strong> {{factura_inventario.Factura.User_Facturador}}</p>
+              </div>
+              {% endif %}
+              {% if current_registro.Estado == 'Entregado'%}
+              <div class="col-6">
+                <p><strong>Cobrador:</strong> {{current_registro.User_Cobrador}}</p>
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+
+          </section>
+        </div>
+        <div class="col-3">
+          <section class="content"
+            style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+            <div class="row">
+              <div class="col-12" style="text-align: center;">
+                <h5>Opciones</h5>
+                <hr>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12" style="text-align: center;">
+                <!--
+                {% if current_registro.Estado == 'Inventario' and current_registro.Nacionalizado == False %}
+                <a href="{% url 'operacion_nacionalizar_inventario' current_registro.id %}" class="btn btn-primary" style="width: 80%; margin-top: 10px;" >Nacionalizar</a>
+                
+                {% endif %}
+                {% if current_registro.Nacionalizado %}
+                <a href="{% url 'generar_factura_de_inventario_pdf' current_registro.id %}" class="btn btn-primary" target="_blank" style="width: 80%; margin-top: 10px;" >Comprobante de entrega</a>
+                  {% if current_registro.Estado == 'Inventario' or current_registro.Estado == 'No localizable' or current_registro.Estado == 'Traslado' %}
+                  <a href="{% url 'operacion_entregar_inventario' current_registro.id %}" class="btn btn-primary" style="width: 80%; margin-top: 10px;" >Entregar mercancía</a>
+                  {% endif %}
+                {% endif %}
+                {% if current_registro.Estado == 'Inventario' or current_registro.Estado == 'Traslado' or current_registro.Estado == 'No localizable' %}
+                <a href="{% url 'operacion_devolucion_inventario' current_registro.id %}" class="btn btn-primary" style="width: 80%; margin-top: 10px;" >Eliminar del inventario</a>
+                {% endif %}
+                {% if current_registro.Estado == 'Inventario' or current_registro.Estado == 'Traslado' %}
+                <a href="{% url 'operacion_no_localizable_inventario' current_registro.id %}" class="btn btn-primary" style="width: 80%; margin-top: 10px;" >Declarar no localizable</a>
+                {% endif %}
+                {% if current_registro.Estado == 'Traslado' or current_registro.Estado == 'No localizable' %}
+                <a href="{% url 'operacion_entrada_inventario' current_registro.id %}" class="btn btn-primary" style="width: 80%; margin-top: 10px;" >Reincorporar a inventario</a>
+                {% endif %}
+                -->
+                {% if current_registro.Estado == 'Inventario' or current_registro.Estado == 'Desagrupe' %}
+                  {% if perms.inventario.change_inventario %}
+                    {% if not current_registro.isFacturado %}
+
+                    <a href="{% url 'inventario_edit' current_registro.id %}" class="btn btn-primary" style="width: 80%; margin-top: 10px;" >Editar</a>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+           
+          </section>
+        </div>
+      </div>
+  </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+{% endblock %}
+
+{% block js_content %} {% endblock %}

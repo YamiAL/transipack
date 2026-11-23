@@ -1,0 +1,398 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+
+
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {{titulo}}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> {{titulo}} </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="POST">
+                      {% csrf_token %}
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Búsquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Fecha_Desde.errors }}
+                            {{ inventario_filter.Fecha_Desde.label_tag }}
+                            {{ inventario_filter.Fecha_Desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.Fecha_Hasta.errors }}
+                            {{ inventario_filter.Fecha_Hasta.label_tag }}
+                            {{ inventario_filter.Fecha_Hasta }}
+                          </div>
+                        </div>
+                        
+                        <div class="col-xl-5 col-lg-5 col-md-8 col-sm-12">
+                          <div class="form-group">
+                            <button type="submit" style="margin-top: 32px;" class="btn btn-primary">{% if request.path == '/factura/exportar/' %} Exportar comprobantes{% else %} Filtrar{% endif %}</button>
+                            <a href="{{ request.path }}"  style="margin-top: 32px;" class="btn btn-primary">Limpiar</a>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </section>
+              </div>
+            </div>
+            
+            <div class="row">
+              {% if inventario_provincia %}
+
+              <div class="col-lg-6 col-6">
+                <!-- Rigth col -->
+                  <div class="container-fluid">
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;" rowspan="2">Provincia</th>
+                          <th style="text-align: center;" colspan="3">Entregas realizadas</th>
+                        </tr>
+                        <tr>
+                          <th>Bultos</th>
+                          <th>Clientes</th>
+                          <th>Miscelaneas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_data in inventario_provincia %}
+                        <tr>
+                          <td style="text-align: center;">{{current_data.Provincia_Entrega__Nombre}}</td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Bultos_Entregados.Cantidad_Bultos__sum is None %} 0 {% else %}{{ current_data.Cantidad_Bultos_Entregados.Cantidad_Bultos__sum }}{% endif %}</td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados is None %} 0 {% else %}{{ current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados }}{% endif %}
+                          </td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Cantidad_Miscelaneas_Entregados is None %} 0 {% else %}{{ current_data.Cantidad_Cantidad_Miscelaneas_Entregados }}{% endif %}
+                          </td>
+                          {% endfor %}
+      
+                        </tr>
+                        
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th style="text-align: center;">Total</th>
+                          <th style="text-align: center;">{{valores_totales.total_entregado_provincia}}</th>
+                          <th style="text-align: center;">{{valores_totales.total_cantidad_clientes_provincia}}</th>
+                          <th style="text-align: center;">{{valores_totales.total_miscelaneas_provincia}}</th>
+                          
+                        </tr>
+                      </tfoot>
+                    </table>
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;" rowspan="2">La Habana</th>
+                          <th style="text-align: center;" colspan="3">Entregas realizadas</th>
+                        </tr>
+                        <tr>
+                          <th>Bultos</th>
+                          <th>Clientes</th>
+                          <th>Miscelaneas</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_data in inventario_habana %}
+                        <tr>
+                          <td style="text-align: center;">{{current_data.Municipio}}</td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Bultos_Entregados.Cantidad_Bultos__sum is None %} 0 {% else %}{{ current_data.Cantidad_Bultos_Entregados.Cantidad_Bultos__sum }}{% endif %}</td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados is None %} 0 {% else %}{{ current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados }}{% endif %}
+                          </td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Cantidad_Miscelaneas_Entregados is None %} 0 {% else %}{{ current_data.Cantidad_Cantidad_Miscelaneas_Entregados }}{% endif %}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th style="text-align: center;">Total</th>
+                          <th style="text-align: center;">{{valores_totales.total_entregado_habana}}</th>
+                          <th style="text-align: center;">{{valores_totales.total_cantidad_clientes_habana}}</th>
+                          <th style="text-align: center;">{{valores_totales.total_miscelaneas_habana}}</th>
+                          
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-6">
+                <!-- Left col -->
+                  <div class="container-fluid">
+                    <table id="inventario_table" class="table table-hover table-sm table-striped mt-4">
+                      
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;" rowspan="2">Provincia</th>
+                          <th style="text-align: center;" colspan="2">Reporte de ENAS</th>
+                        </tr>
+                        <tr>
+                          <th>Bultos</th>
+                          <th>Clientes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_data in inventario_provincia %}
+                        <tr>
+                          <td style="text-align: center;">{{current_data.Provincia_Entrega__Nombre}}</td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Bultos_Entregados_ENA.Cantidad_Bultos__sum is None %} 0 {% else %}{{ current_data.Cantidad_Bultos_Entregados_ENA.Cantidad_Bultos__sum }}{% endif %}
+                          </td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados_ENA is None %} 0 {% else %}{{ current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados_ENA }}{% endif %}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th style="text-align: center;">Total</th>
+                          <th style="text-align: center;">{{valores_totales.total_entregado_ena_provincia}}</th>
+                          <th style="text-align: center;">{{valores_totales.total_cantidad_clientes_ena_provincia}}</th>
+                        </tr>
+                      </tfoot>
+                    </table>
+
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;" rowspan="2">La Habana</th>
+                          <th style="text-align: center;" colspan="2">Reporte de ENAS</th>
+                        </tr>
+                        <tr>
+                          <th>Bultos</th>
+                          <th>Clientes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_data in inventario_habana %}
+                        <tr>
+                          <td style="text-align: center;">{{current_data.Municipio}}</td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Bultos_Entregados_ENA.Cantidad_Bultos__sum is None %} 0 {% else %}{{ current_data.Cantidad_Bultos_Entregados_ENA.Cantidad_Bultos__sum }}{% endif %}
+                          </td>
+                          <td style="text-align: center;">{% if current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados_ENA is None %} 0 {% else %}{{ current_data.Cantidad_Cantidad_Clientes_Bultos_Entregados_ENA }}{% endif %}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th style="text-align: center;">Total</th>
+                          <th style="text-align: center;">{{valores_totales.total_entregado_habana_ena}}</th>
+                          <th style="text-align: center;">{{valores_totales.total_cantidad_clientes_ena}}</th>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+              </div>    
+                <div class="col-lg-12 col-12">
+                  <div class="container-fluid">
+                      <table id="inventario_table" class="table table-hover table-sm table-striped mt-4">
+                        
+                        <thead>
+                          <tr>
+                            <th style="text-align: center;" rowspan="2"></th>
+                            <th style="text-align: center;" colspan="2">Total General</th>
+                          </tr>
+                          <tr>
+                            <th>Bultos</th>
+                            <th>Clientes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style="text-align: center;">La Habana</td>
+                            <td style="text-align: center;">{{valores_totales.total_entregado_habana}}</td>
+                            <td style="text-align: center;">{{valores_totales.total_cantidad_clientes_habana}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: center;">Provincias</td>
+                            <td style="text-align: center;">{{valores_totales.total_entregado_provincia}}</td>
+                            <td style="text-align: center;">{{valores_totales.total_cantidad_clientes_provincia}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: center;">ENA</td>
+                            <td style="text-align: center;">{{valores_totales.total_cantidad_ena}}</td>
+                            <td style="text-align: center;">{{valores_totales.total_cantidad_ena_clientes}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: center;">COLAB.</td>
+                            <td style="text-align: center;"></td>
+                            <td style="text-align: center;"></td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <th style="text-align: center;">Total</th>
+                            <th style="text-align: center;">{{valores_totales.total_bultos}}</th>
+                            <th style="text-align: center;">{{valores_totales.total_clientes}}</th>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                </div>
+
+              {% endif %}
+              {% if file %}
+                <div class="card col-12">
+                  <div class="card-header">
+                  <div class="card-title"><strong>Ficheros Generados</strong></div>
+                </div>
+                <div class="card-body">
+                  <!-- <a href="/media/manifiestos/Facturas_Puerta_Puerta.dbf" >Facturas de provincia</a>
+                   <br/> -->
+                  <a href="/media/manifiestos/Facturas_Presencial.dbf" >Facturas de entrega presencial</a>
+                </div>
+              </div>
+              {% endif %}
+            <!-- /.row (main row) -->
+            </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            // "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            // "buttons": {
+            //   "copy": "Copiar",
+            //   "excel": "Exportar a excel",
+            //   "pdf": "Exportar a PDF",
+            //   "print": "Imprimir",
+
+            // },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "fixedHeader": true,
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": false,
+        //"scrollY": "500px",
+        //"scrollX": "300px",
+        // "buttons": [
+        //     { extend: 'copyHtml5', footer: true },
+        //     { extend: 'excelHtml5', footer: true, title: 'Parte diario generado por TransiPack', },
+        //     { extend: 'csvHtml5', footer: true, title: 'Parte diario generado por TransiPack', },
+        //     { extend: 'pdfHtml5', footer: true, title: 'Parte diario generado por TransiPack', },
+        //     { extend: 'print', footer: true, title: 'Parte diario generado por TransiPack', }
+        // ]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+      //Fin de datatable------------------------------------------------------------------------------------
+    });
+</script>
+
+{% endblock %}

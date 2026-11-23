@@ -1,0 +1,223 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+{% block css_content %} 
+
+  <!-- ** CSS Plugins Needed for the Project ** -->
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="{% static '/manual_ayuda/plugins/bootstrap/bootstrap.min.css' %}">
+  <!-- themefy-icon -->
+  <link rel="stylesheet" href="{% static '/manual_ayuda/plugins/themify-icons/themify-icons.css' %}">
+  <!--Favicon-->
+  <link rel="icon" href="{% static '/manual_ayuda/images/favicon.png" type="image/x-icon' %}">
+  <!-- Main Stylesheet -->
+  <!-- <link href="{% static '/manual_ayuda/style_book.css" rel="stylesheet" media="screen' %}"/> -->
+
+   <link rel="stylesheet" href="{% static '/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static '/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}"> 
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static '/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"> 
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static '/plugins/jqvmap/jqvmap.min.css' %}"> 
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static '/dist/css/adminlte.css' %}"> 
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static '/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+
+  <!-- topics -->
+  <section class="section mt-5">
+    <div class="container">
+      <div class="row justify-content-center">
+          <div id="start" class="card" style="width: 90%; height:50rem">
+              <div class="card-header">
+                <h5 class="card-title text-bold">Importación de manifiestos</h5>
+              </div>
+              <div class="card-body">
+                <img src="{% static 'manual_ayuda/images/importar_manifiesto.png' %}" class="mt-5 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+
+                  <p class="card-text mt-3 ">- Para importar un manifiesto debe seleccionar el menú la opción Inventarios. El sistema le mostrará un submenú con varias opciones; entre ellas, la opción Importar manifiesto.</p>
+                  <!-- <br> -->
+                  <p>- Al seleccionar la opción Importar manifiesto, el sistema le mostrará el formulario donde debe introducir los datos necesarios para que la operaci'on sea efectiva.</p>
+                  <!-- <br> -->
+                  <p class="text-bold">* Al ingresar los datos se deben tener en cuenta los siguientes aspectos:</p>
+                  <p>  - Formato de número de contenedor: XXXX 111111-1</p>
+                  <p>  - La dupla número de contenedor y manifiesto no puede ser añadida en el sistema más de una vez. Si intenta añadir el mismo manifiesto más de una vez, le mostrará el siguiente error:</p>
+              </div>
+              <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button" id="prev"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;" id="next"></i>
+              </div>
+          </div> 
+
+          <div class="card page" style="width: 90%; height:50rem">
+            <div class="card-header">
+              <h5 class="card-title text-bold">Importación de manifiestos</h5>
+            </div>
+            <div class="card-body" style="height:44rem">
+              
+              <img src="{% static 'manual_ayuda/images/error_al_importar_manifiesto.png' %}" class="mt-5 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <p class="card-text mt-3 ">- Para importar un manifiesto debe seleccionar el menú la opción Inventarios. El sistema le mostrará un submenú con varias opciones; entre ellas, la opción Importar manifiesto.</p>
+
+            </div>
+            <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;"></i>
+              </div>
+          </div> 
+          <!-- Desagrupe -->
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Punteo de cargas</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mt-3 ">El punteo de cargas permite confirmar la existencia de las cargas y dar la entrada al almacén, a la vez que permite detectar Insidencias tales como <strong>Faltantes, Sobrantes y Cargas no manifestadas</strong>. Se puede realizar de dos formas:</p>
+              <p class="card-text"><strong>Punteo con escáner:</strong> <br/><br/>1- Seleccionar la opción <strong>Inventario </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Cargas en desagrupe</strong> <br/> 3- Dar click en el botón <strong>Rectificar manifiesto desde escáner</strong></p>
+              <img src="{% static 'manual_ayuda/images/desagrupe_escaner.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <!-- <p class="card-text">- El sistema mostrará el siguiente formulario donde el usuario debe introducir los datos necesarios para hacer el punteo:</p> -->
+              
+            </div>
+            <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;"></i>
+              </div>
+          </div> 
+          
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Punteo de cargas</h5>
+            </div>
+            <div class="card-body">
+              <img src="{% static 'manual_ayuda/images/desagrupe_formulario_escaner.png' %}" class="mt-3 mb-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+              <p class="card-text">4 - Debe introducir el <strong>Número de contenedor</strong> <br/> 5- Dar click en el campo de entrada <strong>Listado de HBL</strong> <br/> 6- Escanear los HBL <br/> 7- Dar click en el botón <strong>Rectificar</strong></p>
+            </div>
+            <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;"></i>
+              </div>
+          </div>
+          
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Punteo de cargas</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><strong>Rectificar manifiesto marcando en el listado:</strong> <br/><br/>1- Seleccionar la opción <strong>Inventario </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Cargas en desagrupe</strong> <br/> 3- Seleccionar los HBL en el listado mostrado en formato tabular <br/> 4- Seleccionar <strong>Declarar como existente</strong> en las acciones a ejecutar sobre filas seleccionadas</p>
+               <img src="{% static 'manual_ayuda/images/desagrupe_tabla.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+            </div>
+            <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;"></i>
+              </div>
+          </div>
+
+          <!-- Nacionalizacion -->
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Nacionalización de cargas</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text mt-3 ">La nacionalización de cargas permite obtener los valores <strong>Importe de derecho</strong> e <strong>Importe de servicio aduanal</strong> de las cargas de tipo <strong>ENVÍO</strong>. Se puede realizar de dos formas:</p>
+              <p class="card-text"><strong>Nacionalización automática:</strong><br/> El sistema verifica si ya fueron aforadas las cargas y actualiza su información con los valores emitidos por la aduana.</p>
+              <p class="card-text"><strong>Nacionalizar seleccionando en el listado:</strong> <br/>1- Seleccionar la opción. <strong>Inventario </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>No Nacionalizados</strong>. <br/> 3- Seleccionar los HBL en el listado mostrado en formato tabular. <br/> 4- Seleccionar <strong>Nacionalizar cargas</strong> en las acciones a ejecutar sobre filas seleccionadas.</p>
+               <img src="{% static 'manual_ayuda/images/nacionalizacion.png' %}" class="mt-3 text-center" alt="Responsive image" style="max-width: 500%;height: 350px;">
+            </div>
+            <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;"></i>
+              </div>
+          </div>  
+
+          <div class="card page" style="width: 90%; height:50rem">
+             <div class="card-header">
+              <h5 class="card-title text-bold">Agregar nueva carga</h5>
+            </div>
+            <div class="card-body">
+              
+              <p class="card-text">La funcionalidad <strong>Agregar</strong>, permite añadir al sistema una nueva carga. <br/>1- Seleccionar la opción <strong>Inventario </strong>en el menú <br/> 2- En el submenú desplegado debe seleccionar la opción <strong>Agregar</strong> <br/> 3- Introducir los datos necesarios para añadir una carga <br/> 4- Dar click en el botón Aceptar</p>
+               <img src="{% static 'manual_ayuda/images/agregar_carga.png' %}" class="mt-1 text-center" alt="Responsive image" style="width: 35rem;height: 580px;">
+            </div>
+            <div class="card-footer">
+                <i class="prev fas fa-arrow-circle-left text-primary" role="button"></i>
+                <i class="next fas fa-arrow-circle-right text-primary" role="button" style="float: right;"></i>
+              </div>
+          </div> 
+
+
+      </div>
+    </div>
+  </section>
+  <!-- /topics -->
+
+{% endblock %}
+
+{% block js_content %} 
+  
+
+
+<!-- jQuery -->
+<script src="{% static '/plugins/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("div.page").hide();
+  });
+
+  // var $currElement = $("#start");
+  //   // $currElement.css("background", "red");
+  
+  //   $(".next").click(function () {
+    
+  //   if(!$currElement.next().length){
+  //     $currElement = $("#start");
+  //     $currElement.css("display","block");
+  //   }
+  //   $currElement.removeClass("visible");
+  //   $currElement.css("display","none");
+  //   $currElement = $currElement.next().fadeOut();
+  //   $currElement.css("display","block");
+  //   $currElement.addClass("visible");
+  //   });
+
+  // var $currElementVisible = $(".visible");
+  //   $(".prev").click(function () {
+    
+  //   if(!$currElementVisible.prev().length){
+  //     $currElementVisible = $("#start");
+  //     $currElementVisible.css("display","block");
+  //   }
+  //   $currElement.removeClass("visible");
+  //   $currElementVisible.css("display","none");
+  //   $currElementVisible = $currElement.prev().fadeOut();
+  //   $currElementVisible.css("display","block");
+  //   $currElement.addClass("visible");
+  //   });
+
+
+    $('.prev, .next').on('click', function(e) {
+    var cur = $('div.row div#start'),
+        next = cur.next('div.card'),
+        prev = cur.prev('div.card');
+    if (e.target.id == 'next') {
+        if (next.length == 1) {
+            cur.removeClass('visible');
+            next.addClass('visible');
+        }
+    } else if (e.target.id = 'prev') {
+        if (prev.length == 1) {
+            cur.removeClass('visible');
+            prev.addClass('visible');
+        }
+    }
+    });
+</script>
+    
+{% endblock %}

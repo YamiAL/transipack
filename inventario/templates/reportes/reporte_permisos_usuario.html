@@ -1,0 +1,811 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {{header_text}}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> {{breadcrumb_text}} </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="GET">
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Búsquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ usuario_filter.form.username.label_tag }}
+                            {{ usuario_filter.form.username }}
+                          </div>
+                        </div>
+                        <div class="col-12">
+                          <a href="{{ request.path }}" style="float: right;" class="btn btn-primary">Limpiar</a>
+                          <button type="submit" style="float: right; margin-right: 10px;" class="btn btn-primary">Filtrar</button>
+                        </div>
+                      </div>
+                    </form>
+                     
+                  </div>
+                </section>
+            </div>
+            </div>
+           
+            <div class="col-lg-12 col-12" id="id_div_table">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid table-responsive">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                   
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      <thead>
+                        <tr>
+                          <th>Usuario</th>
+                          <th style="width:150px;">Nombre y Apellidos</th>
+                          <th>Permisos</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_user in page_obj %}
+                        <tr>
+                        
+                          <td>{{current_user.username}}</td>
+                          <td>{{current_user.first_name}} {{current_user.last_name}}
+                          </td>
+                          <td>
+                            {{current_user.id |permisos|cut:"['"|cut:"'"|cut:"]"}}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+
+<!-- modal-generar-factura -->
+<div class="modal fade" id="modal-generar-factura-ena-menaje">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Generar comprobante de entrega</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+            <div class="modal-body">
+              <label>Por favor complete la siguiente información</label> 
+            </div>
+            <div class="col-12">
+              <label>Importe por derecho aduanal</label>
+              <input type="text" name="importe_derecho_aduanal" id="id_importe_derecho_aduanal" class="form-control" value="0.0" />
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <label>Importe por servicio aduanal</label>
+              <input type="text" name="importe_servicio_aduanal" id="id_importe_servicio_aduanal" class="form-control" value="0.0" />
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <label>Presencial</label>
+              <input type="checkbox" name="presencial" id="presencial"  />
+            </div>
+            <!-- <div class="col-12" style="margin-top: 10px;">
+              <label>Cargos extra</label>
+              <input type="text" name="cargos_extra_ena" id="cargos_extra_ena" class="form-control" value="0.0" />
+            </div> -->
+            <!-- <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="incluir_transportacion_ena" id="id_incluir_transportacion_ena" checked />
+              <label>Incluir costos de transportación</label>
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="trasbordo" id="id_trasbordo"  />
+              <label>Trasbordo</label>
+            </div> -->
+            <div class="modal-footer justify-content-between" style="margin-top: 10px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="button_generar_factura" onclick="setTime()" >Aceptar</button>
+            </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-generar-factura-envio -->
+<div class="modal fade" id="modal-generar-factura-envio">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Generar comprobante de entrega</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+            <div class="modal-body">
+              <label>Al aceptar generará una nueva factura</label> 
+              <!-- <label>Por favor complete la siguiente información</label>  -->
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <label>Presencial</label>
+              <input type="checkbox" name="presencial" id="presencial"  />
+            </div>
+            <!-- <div class="col-12" style="margin-top: 10px;">
+              <label>Cargos extra</label>
+              <input type="text" name="cargos_extra" id="id_cargos_extra" class="form-control" value="0.00" />
+            </div> -->
+            <!-- <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="incluir_transportacion" id="id_incluir_transportacion" checked />
+              <label>Incluir costos de transportación</label>
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="trasbordo" id="id_trasbordo"  />
+              <label>Trasbordo</label>
+            </div> -->
+            <div class="modal-footer justify-content-between" style="margin-top: 10px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="button_generar_factura_envio" onclick="setTime()" >Aceptar</button>
+            </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-ubicar-dentro-de-almacen -->
+<div class="modal fade" id="modal-ubicar-cargas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Ubicar cargas dentro de almacén</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            {{ form_ubicar_carga_dentro_almacen.Fila.errors }}
+            {{ form_ubicar_carga_dentro_almacen.Fila.label_tag }}
+            {{ form_ubicar_carga_dentro_almacen.Fila }}
+            {{ form_ubicar_carga_dentro_almacen.Columna.errors }}
+            {{ form_ubicar_carga_dentro_almacen.Columna.label_tag }}
+            {{ form_ubicar_carga_dentro_almacen.Columna }}
+            <div class="col-4" style="margin-top: 10px;">
+              <input type="checkbox" name="ubicar_con_escaner" id="id_ubicar_con_escaner" />
+              <label>Escanear cargas</label>
+            </div>
+            <div class="col-12" style="margin-top: 10px;" id="input_cargas">
+
+             {{ form_ubicar_carga_dentro_almacen.Carga.errors }}
+              {{ form_ubicar_carga_dentro_almacen.Carga.label_tag }}
+              <label style="color: red;">*</label>
+              {{ form_ubicar_carga_dentro_almacen.Carga }}
+            </div>
+
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_ubicar_cargas" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-canal-rojo -->
+</div>
+
+
+<!-- modal-dialog-generar-comprobantes -->
+<div class="modal fade" id="modal-generar-comprobante-escaner">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Generar comprobantes con escaner</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            
+               <form id="hbl_escaneados" method="POST" action="">  
+                     {% csrf_token %} 
+
+                  <div class="form-group">
+                    {{ form_hbl_escaneados.No_Contenedor.errors }}
+                    {{ form_hbl_escaneados.No_Contenedor.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_hbl_escaneados.No_Contenedor }}
+                    {{ form_hbl_escaneados.Manifiesto.errors }}
+                    {{ form_hbl_escaneados.Manifiesto.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_hbl_escaneados.Manifiesto }}
+                  </div>
+                  <div class="form-group">
+                    {{ form_hbl_escaneados.HBL.errors }}
+                    {{ form_hbl_escaneados.HBL.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_hbl_escaneados.HBL }}
+                  </div>
+                
+                  <button type="button" class="btn btn-danger" data-dismiss="modal" id="close_modal_comprobante">
+                    Cancelar
+                  </button>
+                  <button type="submit" style="width: 30%;" class="btn btn-primary">Aceptar</button> 
+                  </div> 
+                 </form> 
+              
+
+          </div>
+          <!-- <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_generar_comprobantes" class="btn btn-primary">Aceptar</a>
+          </div> -->
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-generar-comprobantes -->
+</div>
+
+
+</form>
+
+<!-- modal-dialog-trasladar-almacen -->
+<div class="modal fade" id="modal-trasladar-almacen">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title" id="titulo_trasladar_almacen">Trasladar de almacén</h4>
+              <h4 class="modal-title" id="titulo_trasbordar">Trasbordar cargas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label id="titulo_trasladar_almacen">Seleccione el almacén de destino:</label>
+            <!-- <label id="titulo_trasbordar">Seleccione el destino:</label> -->
+
+            {{ form_trasladar_almacen.Almacen_Traslado.errors }}
+            <!-- {{ form_trasladar_almacen.Almacen_Traslado.label_tag }} -->
+            {{ form_trasladar_almacen.Almacen_Traslado }}
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_aceptar_traslado" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-nacionalizar-cargas -->
+<div class="modal fade" id="modal-nacionalizar-cargas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Nacionalizar cargas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <div class="col-12">
+              <div id="nacionalizar_cargas_label"></div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_nacionalizar_cargas" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-entregar-cargas -->
+<div class="modal fade" id="modal-entregar-cargas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Entregar cargas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a entregar las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_entregar_cargas" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-entregar-cargas -->
+<div class="modal fade" id="modal-confirmar-existencia-cargas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Confirmar existencia de cargas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a confirmar la existencia de las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_confirmar_existencia_cargas" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-confirmar-existencia-cargas -->
+</div>
+
+
+<!-- modal-dialog-canal-rojo -->
+<div class="modal fade" id="modal-canal-rojo">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Declarar cargas en canal rojo</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a declarar en canal rojo las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_canal_rojo" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-canal-rojo -->
+</div>
+
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>  
+    $( document ).ready(function() {
+        $( "#id_div_escaner" ).hide();
+        $( "#input_cargas" ).hide();
+
+        $("#close_modal_comprobante").on('click',function(){
+          $('#id_crear_comprobante_escaner').prop('checked',false);
+        });
+
+        // Muestra campo para introducir los HBL escaneados
+        $('#id_crear_comprobante_escaner').change(function () {
+             if($(this).prop('checked')){
+                $("#modal-generar-comprobante-escaner").modal('show');
+             }           
+        });
+
+      $("#accion_tabla" ).change(function() {
+        //Accion de mover inventario
+        if ($("#accion_tabla" ).val() == '1'){
+          $("#operacion_tabla").val('mover_inventario');
+          $("#modal-trasladar-almacen" ).modal('show');
+          $("#titulo_trasladar_almacen" ).show();
+          $("#titulo_trasbordar" ).hide();
+
+        }
+        //Accion de nacionalizar cargas
+        if ($("#accion_tabla" ).val() == '2'){
+          $("#operacion_tabla").val('nacionalizar_cargas');
+          //Comprobando conexion con aduana
+          $.ajax({
+            url: '{% url 'test_aduana_conection' %}',
+            method: 'GET',
+            success: function (data) {
+              $('#nacionalizar_cargas_label').empty();
+              if (data.response){
+                $('#nacionalizar_cargas_label').append('Usted va a nacionalizar las cargas seleccionadas <br><br> ¿Desea continuar la operación? <br><br>');
+              }else{
+                $('#nacionalizar_cargas_label').append('El servicio de nacionalización de la Aduana General de la República no se encuentra disponible. <br><br>  Al nacionalizar las cargas los valores de DERECHO ADUANAL y SERVICIO ADUANAL serán valorizados con 0. <br><br> ¿Desea continuar la operación? <br><br>');
+              }
+            }
+          });
+
+          $("#modal-nacionalizar-cargas" ).modal('show');
+        }
+        //Accion de entregar cargas
+        if ($("#accion_tabla" ).val() == '3'){
+          $("#operacion_tabla").val('entregar_cargas');
+          $("#modal-entregar-cargas" ).modal('show');
+        }
+
+        if ($("#accion_tabla" ).val() == '4'){
+          $("#operacion_tabla").val('facturar_envios');
+          $("form").attr('target', '_blank');
+          $("#modal-generar-factura-envio" ).modal('show');
+        }
+
+        if ($("#accion_tabla" ).val() == '5'){
+          $("#operacion_tabla").val('facturar_ena_menaje');
+          $("form").attr('target', '_blank');
+          $("#modal-generar-factura-ena-menaje" ).modal('show');
+        }
+        if ($("#accion_tabla" ).val() == '6'){
+          $("#operacion_tabla").val('dar_entrada_almacen');
+          $("form").attr('target', '_blank');
+          $("#modal-confirmar-existencia-cargas" ).modal('show');
+
+        }
+        if ($("#accion_tabla" ).val() == '7'){
+          $("#operacion_tabla").val('trasbordar_cargas');
+          $("form").attr('target', '_blank');
+          // $("#modal-trasbordar-cargas" ).modal('show');
+          $("#modal-trasladar-almacen" ).modal('show');
+          $("#titulo_trasladar_almacen").hide();
+          $("#titulo_trasbordar").show();
+
+        }
+        if ($("#accion_tabla" ).val() == '8'){
+          $("#operacion_tabla").val('canal_rojo');
+          $("form").attr('target', '_blank');
+          $("#modal-canal-rojo" ).modal('show');
+
+        }
+        if ($("#accion_tabla" ).val() == '9'){
+          $("#operacion_tabla").val('ubicar_cargas_dentro_almacen');
+          $("form").attr('target', '_blank');
+          $("#modal-ubicar-cargas" ).modal('show');
+
+        }
+      });
+
+      //Acciones de mover inventario---------------------
+      $("#id_Almacen_Traslado" ).change(function() {
+        $("#id_almacen_tabla").val($("#id_Almacen_Traslado" ).val());
+      });
+
+      $('#modal-trasladar-almacen').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#modal-generar-factura-envio').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $("form").attr('target', '');
+      })
+
+      $('#modal-generar-factura-ena-menaje').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $("form").attr('target', '');
+      })
+
+      $('#button_aceptar_traslado').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de nacionalizar cargas---------------------
+      $('#modal-nacionalizar-cargas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $("#id_Provincia_Destinatario" ).change(function() {
+        $("#id_provincia_submit").val($("#id_Provincia_Destinatario" ).val());
+      });
+
+      $("#id_Municipio_Destinatario" ).change(function() {
+        $("#id_municipio_submit").val($("#id_Municipio_Destinatario" ).val());
+      });
+
+      $('#button_nacionalizar_cargas').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      $('#id_Provincia_Destinatario').change(function(){
+        $('#id_Municipio_Destinatario').empty().append('<option value="">---------</option>');
+
+        $.ajax({
+          url: '{% url 'ajax_municipio_load' %}',
+          method: 'GET',
+          data: {
+            'id_provincia': $('#id_Provincia_Destinatario').val()
+          },
+          success: function (data) {
+            var obj = JSON.parse(data);
+
+            for (x of obj) {
+              $('#id_Municipio_Destinatario').append($('<option>', {
+                value: x.pk,
+                text: x.fields.Nombre
+              }));
+            }
+          }
+        });
+      });
+
+      //Acciones de entregar cargas---------------------
+      $('#modal-entregar-cargas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_entregar_cargas').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de confirmar existencia de cargas---------------------
+      $('#modal-confirmar-existencia-cargas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_confirmar_existencia_cargas').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de trasbordar cargas---------------------
+      $('#modal-trasbordar-cargas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_trasbordar_cargas').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de declarar canal rojo---------------------
+      $('#modal-canal-rojo').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_canal_rojo').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de ubicar cargas dentro del almacen--------------
+      // Muestra campo para introducir las cargas escaneadas
+        $('#id_ubicar_con_escaner').change(function () {
+             if($(this).prop('checked')){
+                $( "#input_cargas" ).show();
+             }
+             else {
+
+                $( "#input_cargas" ).hide();
+             }
+        });
+
+        $('#modal-ubicar-cargas').on('hidden.bs.modal', function (e) {
+          $("#accion_tabla" ).val('0');
+        })
+
+        $('#button_ubicar_cargas').click(function() {
+          $('#inventario_tabla_form').submit();
+        });
+
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 400,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+      $('#inventario_table_paginate ul li a').click(function(){
+        
+      });
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+    
+      //Ajax de listado de municipios---------------------------------------------------------------------------
+      //Actualizacion al cambiar la provincia  
+      $("#id_Destinatario_Provincia").change(function () {
+        actualiza_municipio($("#id_Destinatario_Provincia").val());
+      });  
+
+      //Identificando si existe alguna provincia cargada al hacer get
+      const url = window.location.search;
+      const urlParametro = new URLSearchParams(url);
+      const id_provincia = urlParametro.get("Destinatario_Provincia");
+
+      if (id_provincia){
+        actualiza_municipio(id_provincia);
+      }
+      
+      //Actualiza el listado de municipios        
+      function actualiza_municipio(id_provincia){
+        //Captura si existe algun municipio en el request
+        const url = window.location.search;
+        const urlParametro = new URLSearchParams(url);
+        const id_municipio = urlParametro.get("Destinatario_Municipio");
+
+        //Eliminando todas las opiones existentes
+        $('#id_Destinatario_Municipio').empty().append('<option value="">---------</option>');
+
+        $.ajax({
+          url: '{% url 'ajax_municipio_load' %}',
+          method: 'GET',
+          data: {
+            'id_provincia': id_provincia
+          },
+          success: function (data) {
+            var obj = JSON.parse(data);
+
+            for (x of obj) {
+              if (id_municipio == x.pk){
+                $('#id_Destinatario_Municipio').append($('<option>', {
+                  selected: '',
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }else{
+                $('#id_Destinatario_Municipio').append($('<option>', {
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }
+            }
+          }
+        });
+        return;
+      }
+      //Fin de trabajo con municipios---------------------------------------------------------------------------
+    });
+
+    //Paginacion
+    function paginator_link(page){
+      $('#page_selector').val(page);
+      $('#filter_form').submit();
+    }
+
+    function setTime(){
+      setTimeout(function(){
+            window.location.href = '/comprobante-entrega/envio/';
+         }, 3000);
+    }
+
+      
+</script>
+
+{% endblock %}

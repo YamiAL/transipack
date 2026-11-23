@@ -1,0 +1,543 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {{header_text}}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> {{breadcrumb_text}} </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                          <div class="form-group">
+                            {{ form.No_Contenedor.errors }}
+                            <!-- {{ form.No_Contenedor.label_tag }} -->
+                            <label>No. de Contenedor / Guía aérea</label>
+                            <label style="color: red;">*</label>
+                            {{ form.No_Contenedor }}
+                          </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                          <!-- {{ form.isPrepago.errors }} -->
+                         <!--  {{ form.QR_multiple.label_tag }}
+                          <label style="color: red;">*</label>
+                          {{ form.QR_multiple }} -->
+                          <label class="mb-2">QR múltiple</label>
+                          <input type="checkbox" id="QR_multiple" name="QR_multiple"  class="mb-2"/>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                          <div class="form-group ">
+                           {{ form.HBL.label_tag }}
+                            <label style="color: red;">*</label>
+                            {{ form.HBL.errors }}
+                            {{ form.HBL }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-left: auto; margin-right: auto;">
+                          <div class="card-footer" style="text-align: center">
+                            <button type="submit" style="width: 30%;" class="btn btn-primary">Aceptar</button>
+                            <button type="button" style="width: 30%; margin-right: 10px;" class="btn btn-danger" data-toggle="modal"
+                              data-target="#modal-cancelar">
+                              Cancelar
+                            </button>                 
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                      <!-- <hr> -->
+                     <!--  <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Acciones a ejecutar sobre filas seleccionadas</label>
+                          <select id="accion_tabla" name="accion_tabla" class="form-control" style="width: 100%;">
+                            <option value="0">---------</option>
+                            {% if request.path == '/inventario/list/' %}
+                              <option value="1">Mover de almacén</option>
+                              <option value="2">Re-nacionalizar cargas</option>
+                            {% endif %}
+                            {% if request.path == '/mercancia-no-nacionalizada/lista/' %}
+                              <option value="1">Mover de almacén</option>
+                              <option value="2">Nacionalizar cargas</option>
+                            {% endif %}
+                            {% if request.path == '/mercancias-no-localizables/list/' %}
+                              <option value="1">Reincorporar a almacén</option>
+                            {% endif %}
+                            {% if request.path == '/entrega/lista/' %}
+                              <option value="1">Reincorporar a almacén</option>
+                              <option value="3">Declarar como entregadas</option>
+                            {% endif %}
+                            {% if request.path == '/comprobante-entrega/envio/' %}
+                              {% if isEnvio %} <option value="4">Comprobante de envío</option> {% endif %}
+                              {% if isEna_Menaje %} <option value="5">Comprobante de ena o menaje</option> {% endif %}
+                            {% endif %}
+                          </select>
+                        </div>
+                      </div> -->
+                  </div>
+                </section>
+            </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-6">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <p class="text-bold">HBL no manifestados</p>
+                  <div class="container-fluid table-responsive">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <!-- informaciones pasadas por POST-->
+                    <!-- Tipo de operacion-->
+                    <input type="hidden" id="operacion_tabla" name="operacion_tabla" value="" />
+                    <!-- Operacion trasladar de almacen-->
+                    <input type="hidden" id="id_almacen_tabla" name="id_almacen_tabla" value="" />
+                    <!-- Operacion nacionalizar-->
+                    <input type="hidden" id="id_provincia_submit" name="id_provincia_submit" value="" />
+                    <input type="hidden" id="id_municipio_submit" name="id_municipio_submit" value="" />
+                    <!--fin-->  
+                    <table id="inventario_table" class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>HBL</th>
+                          <th>Contenedor</th>
+                        </tr>
+                      </thead>
+                      <tbody id="DataResult">
+                        {% for current_inventario in hbl_no_manifestados %}
+                        <tr>
+                          <td style="text-align: center;"><input type="checkbox" name="inventario_id" value="{{current_inventario.id}}"></td>
+                          <td>{{current_inventario.HBL}}</td>
+                          <td>{{current_inventario.No_Contenedor}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="col-lg-6 col-6">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <p class="text-bold">HBL manifestados</p>
+                  <div class="container-fluid table-responsive">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <!-- informaciones pasadas por POST-->
+                    <!-- Tipo de operacion-->
+                    <input type="hidden" id="operacion_tabla" name="operacion_tabla" value="" />
+                    <!-- Operacion trasladar de almacen-->
+                    <input type="hidden" id="id_almacen_tabla" name="id_almacen_tabla" value="" />
+                    <!-- Operacion nacionalizar-->
+                    <input type="hidden" id="id_provincia_submit" name="id_provincia_submit" value="" />
+                    <input type="hidden" id="id_municipio_submit" name="id_municipio_submit" value="" />
+                    <!--fin-->  
+                    <table id="inventario_table_manifestados" class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>HBL</th>
+                          <th>Contenedor</th>
+                        </tr>
+                      </thead>
+                      <tbody id="DataResult">
+                        {% for current_inventario in hbl_no_manifestados %}
+                        <tr>
+                          <td>{{current_inventario.HBL}}</td>
+                          <td>{{current_inventario.No_Contenedor}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+
+
+</form>
+
+
+<!-- modal-cancelar -->
+<div class="modal fade" id="modal-cancelar">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Cancelar desagrupe</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a borrar todos los HBL escaneados</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="{% url 'inicio' %}" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-cancelar -->
+</div>
+
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+      $('form').find('input[type=text],textarea,select').filter(':visible:first').focus();
+      $('.alert').hide();
+      $('checkbox').prop('checked', false);
+
+      //Punteo dinámico------------------------------------------------------------------
+      function beep() {
+        var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+}
+
+
+
+      $('#id_HBL').change(function(){
+
+// -------------------------- Verificar existencia de HBL ---------------------------
+        $.ajax({
+          url: '{% url 'ajax_punteo_confirmacion_inventario_load' %}',
+          method: 'GET',
+          data: {
+            'HBL': $('#id_HBL').val(),
+            'No_Contenedor': $('#id_No_Contenedor').val(),
+            'QR_multiple': $('#QR_multiple').val(),
+          },
+          success: function (data) {
+            if(data.existe){
+              $('#id_HBL').addClass('bg-success');
+              setTimeout(function() { $('#id_HBL').removeClass('bg-success'); }, 300);
+            }
+            else{
+              $('#id_HBL').addClass('bg-danger');
+              beep();
+              setTimeout(function() { $('#id_HBL').removeClass('bg-danger'); }, 300);
+            }       
+
+          }
+        });
+// -------------------------- HBL no manifestados ----------------------------------
+        $.ajax(
+       
+          {
+          url: '{% url 'ajax_punteo_inventario_load' %}',
+          method: 'GET',
+          data: {
+            'HBL': $('#id_HBL').val(),
+            'No_Contenedor': $('#id_No_Contenedor').val(),
+            'QR_multiple': $('#id_QR_multiple').val(),
+          },
+          success: function (data) {
+            var obj = JSON.parse(data);
+            var html = '';
+            var t = $('#inventario_table').DataTable();
+            t.clear().draw();
+            for (x of obj) {
+              t.row.add([x.fields.HBL, x.fields.No_Contenedor]).draw(true);
+            }
+          }
+        }
+        );
+// -----------------------------HBL Manifestados---------------------------------------
+        $.ajax({
+            url: '{% url 'ajax_hbls_confirmado_punteo_load' %}',
+            method: 'GET',
+            data: {
+              'HBL': $('#id_HBL').val(),
+              'No_Contenedor': $('#id_No_Contenedor').val(),
+              'QR_multiple': $('#id_QR_multiple').val(),
+            },
+            success: function (data) {
+              var obj = JSON.parse(data);
+              var html = '';
+              var t = $('#inventario_table_manifestados').DataTable();
+              t.clear().draw();
+              for (x of obj) {
+                t.row.add([x.fields.HBL, x.fields.No_Contenedor]).draw(true);
+              }
+            }
+          });
+
+// -----------------------------HBL duplicados------------------------------------------
+        $.ajax({
+            url: '{% url 'ajax_hbl_duplicado_load' %}',
+            method: 'GET',
+            data: {
+              'HBL': $('#id_HBL').val(),
+              'No_Contenedor': $('#id_No_Contenedor').val(),
+              'QR_multiple': $('#id_QR_multiple').val(),
+            },
+            success: function (data) {
+              if(data.existe){
+                var texto ='<div id="hbl_duplicado" class="alert alert-warning" role="alert"><p class="text-bold">' + 'HBL ' + data.hbl +' duplicado.' + '</p><' + '/' + 'div' + '>'
+                $( "#id_HBL" ).after(texto);
+
+              }
+            }
+          });
+
+// -------------------------------------------------------------------------------------
+
+        $(this).val('');
+        setTimeout(function() { $('#hbl_duplicado').hide(); }, 3000);
+        
+      });
+
+
+    
+
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('#inventario_table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 400,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      
+      $('#inventario_table_manifestados').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 400,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_manifestados_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+      $('#inventario_table_paginate ul li a').click(function(){
+        
+      });
+
+      $('#inventario_table_manifestados_wrapper .col-md-7').append($('#inventario_table_manifestados_paginate'));
+      $('#inventario_table_manifestados_paginate ul li a').click(function(){
+        
+      });
+
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+    
+      
+    });
+
+    //Paginacion
+    function paginator_link(page){
+      $('#page_selector').val(page);
+      $('#filter_form').submit();
+    }
+
+    function setTime(){
+      setTimeout(function(){
+            window.location.href = '/comprobante-entrega/envio/';
+         }, 3000);
+    }
+
+    $('#id_No_Contenedor').on('change',function(){
+      $('#id_HBL').focus();
+    });
+      
+</script>
+
+{% endblock %}

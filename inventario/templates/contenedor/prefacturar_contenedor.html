@@ -1,0 +1,204 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+{% block css_content %}
+<style>
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {% if action == 'edit' %} Editar inventario {% endif %}
+              {% if action == 'add' %} Agregar inventario {% endif %}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active">
+                        {% if action == 'edit' %} Editar inventario {% endif %}
+                        {% if action == 'add' %} Agregar inventario {% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <form action="" method="POST">
+      {% csrf_token %}
+        <div class="col-12">
+          <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <h4>Prefacturar contenedor</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                  <div class="form-group">
+                    {{ form_prefactura_contenedor.No_Contenedor.label_tag }}
+                    {{ form_prefactura_contenedor.No_Contenedor }}
+                  </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                  <div class="form-group">                    
+                    {{ form_prefactura_contenedor.AWB.label_tag }}
+                    {{ form_prefactura_contenedor.AWB }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                  <div class="form-group">
+                    {{ form_prefactura_contenedor.Manifiesto.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_prefactura_contenedor.Manifiesto }}
+                  </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                  <div class="form-group">
+                    {{ form_prefactura_contenedor.Operador.label_tag }}
+                      <label style="color: red;">*</label>
+                      {{ form_prefactura_contenedor.Operador }}
+                  </div>
+                </div>
+              </div>
+              
+              </div>
+              <div class="card-footer" style="text-align: center">
+                <button type="button" style=" margin-right: 10px;" class="btn btn-danger" data-toggle="modal"
+                  data-target="#modal-cancelar">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" target="_blank">Aceptar</button>
+              </div>
+            </div>
+          
+            
+          </div>
+          <!-- /.card-body -->
+        <!-- /.card -->
+      </div>
+    </form>
+</section>
+<!-- /.content -->
+
+<!-- modal-dialog-cancelar -->
+<div class="modal fade" id="modal-cancelar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cancelar operación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Usted va a salir de la operación actual</label>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                {% if action == 'edit' %}
+                <a href="{% url 'inventario_detail' id_inventario %}" class="btn btn-primary">Aceptar</a>
+                {% endif %}
+                {% if action == 'add' %}
+                <a href="{% url 'inventario_list' %}" class="btn btn-primary">Aceptar</a>
+                {% endif %}
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog-suspender-evento -->
+</div>
+{% endblock %}
+
+{% block js_content %} 
+
+<script>
+    $( document ).ready(function() {
+        
+      
+        $('Select').attr('class', 'form-control');
+        $('input[type=text]').attr('class', 'form-control');
+        $('input[type=number]').attr('class', 'form-control');
+        $('textarea').attr('class', 'form-control');
+
+        //Actualizacion de municipios segun provincia
+          $('#id_Provincia').change(function(){
+          $('#id_Municipio').empty().append('<option value="">---------</option>');
+
+          $.ajax({
+            url: '{% url 'ajax_municipio_load' %}',
+            method: 'GET',
+            data: {
+              'id_provincia': $('#id_Provincia').val()
+            },
+            success: function (data) {
+              var obj = JSON.parse(data);
+
+              for (x of obj) {
+                $('#id_Municipio').append($('<option>', {
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }
+            }
+          });
+        });
+
+        {% if action == 'edit' %}
+        //Cargando municipio cuando en la vista editar
+        $('#id_Provincia').append(function(){
+          $('#id_Municipio').empty().append('<option value="">---------</option>');
+
+          $.ajax({
+            url: '{% url 'ajax_municipio_load' %}',
+            method: 'GET',
+            data: {
+              'id_provincia': $('#id_Provincia').val()
+            },
+            success: function (data) {
+              var obj = JSON.parse(data);
+
+              for (x of obj) {
+                if ( {{ current_id_municipio.id }} == x.pk){
+                    $('#id_Municipio').append($('<option>', {
+                    selected: '',
+                    value: x.pk,
+                    text: x.fields.Nombre
+                  }))
+                }else{
+                    $('#id_Municipio').append($('<option>', {
+                    value: x.pk,
+                    text: x.fields.Nombre
+                  }))
+                }
+              }
+            }
+          });
+        });
+        {% endif %}
+
+    });
+</script>
+
+{% endblock %}

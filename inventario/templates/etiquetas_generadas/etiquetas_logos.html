@@ -1,0 +1,102 @@
+
+{% load static %}
+{% load delete_underscore %}
+{% load qr_code %}
+<html>
+
+<head>
+    <!-- {% block css_content %} -->
+    <link rel="stylesheet" href="{% static '/plugins/barcode/JsBarcode.css' %}"> 
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/code39_all.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39_L.css' %}">   
+    <!-- {% endblock %} -->
+
+    <style>
+        @page {
+            /* Configuracion general de la hoja */
+            /* size: a4 landscape; */
+            size: a4; 
+            margin: 1cm, 1cm, 1cm, 1cm;
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 50pt;
+                width: 505pt;
+                top: 810pt;
+                height: 20pt;
+            }
+        }
+
+        th,
+        th {
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 8px;
+            padding: 2px;
+            word-wrap: break-word,
+        }
+
+        .first-td {
+            font-size: 8px;
+            padding: 1px;
+            word-wrap: break-word,
+        }
+
+        .table-info-td {
+            font-size: 6px;
+            padding: 0.8px;
+            word-wrap: break-word,
+        }
+
+        #descripcion_cargas {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 1px;
+        }
+
+        #footer_content label{
+            font-size: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <table border="0">
+        <tbody>
+            
+            <tr>             
+                <td class="header-td" colspan="12" style="text-align:center">
+                    <img style="height: 300px; width: 400px;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo_1.jpeg' %}" />
+                </td>      
+            </tr>
+            <tr>             
+                <td class="header-td" colspan="12" style="text-align:center">
+                    <img style="height: 350px; width: 400px;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo_cubanacan_express_sin_fondo.png' %}" />
+                </td>      
+            </tr>
+            <tr>             
+                <td class="header-td text-bold" colspan="12" style="text-align:center; margin-top:10rem"> 
+                    <p style="font-size:40pt;"> {% if manifiesto.awb %}{{manifiesto.awb}}{% else %}{{manifiesto.contenedor}}{% endif %} </p> </td> 
+            </tr>
+        </tbody>
+    </table>
+      
+    {% block js_content %}
+    <script type="text/javascript" src="{% static '/plugins/htmlbarcode_src/code39.js' %}"></script>          
+    <script type="text/javascript" src="{% static '/plugins/barcode/JsBarcode.all.min.js ' %}"></script>         
+    <script type="text/javascript">   
+        
+        JsBarcode(".barcode").init();
+    </script>         
+    {% endblock %}
+</body>
+
+</html>

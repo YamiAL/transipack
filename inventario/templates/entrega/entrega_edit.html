@@ -1,0 +1,498 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+
+<style>
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+
+  #inventario_table_filter > label:nth-child(1){
+    float: right;
+    width: 80%;
+    margin-top: -5px;
+  }
+
+  .dt-buttons{
+    margin-top: -8px;
+  }
+
+  .btn.btn-secondary{
+    background-color: #4886bd;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {% if action == 'edit' %} Editar traslado de mercancías {% endif %}
+              {% if action == 'add' %} Programar nuevo traslado de mercancías {% endif %}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'entrega_list' %}">Entregas</a></li>
+                    <li class="breadcrumb-item active">
+                        {% if action == 'edit' %} Editar traslado {% endif %}
+                        {% if action == 'add' %} Nuevo traslado {% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+    <div class="col-12">
+    <div class="card">
+    <div class="card-body">
+      <div class="container-fluid">
+          <form id="filter_form" action="" method="GET">
+            <input type="hidden" name="page" id="page_selector" value="" />
+            <div class="row">
+              <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                <label>Búsquedas</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group">
+                  {{ factura_filter.form.Agencia.label_tag }}
+                  {{ factura_filter.form.Agencia }}
+                </div>
+              </div>
+              <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group">
+                  {{ factura_filter.form.Destinatario_Provincia.label_tag }}
+                  {{ factura_filter.form.Destinatario_Provincia }}
+                </div>
+              </div> 
+              <div class="col-6">
+                <a href="{{ request.path }}" style="float: right;" class="btn btn-primary mt-4">Limpiar</a>
+                <button type="submit" style="float: right; margin-right: 10px;" class="btn btn-primary mt-4">Filtrar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <h4>Datos del traslado</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_entrega.Fecha_Entrega.errors }}
+                    {{ form_entrega.Fecha_Entrega.label_tag }} 
+                    <label style="color: red;">*</label>
+                    {{ form_entrega.Fecha_Entrega }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_entrega.Hora_Salida.errors }}
+                    {{ form_entrega.Hora_Salida.label_tag }}
+                    {{ form_entrega.Hora_Salida }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_entrega.Hora_Llegada.errors }}
+                    {{ form_entrega.Hora_Llegada.label_tag }}
+                    {{ form_entrega.Hora_Llegada }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_empresa.Empresa.errors }}
+                    {{ form_empresa.Empresa.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_empresa.Empresa }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_entrega.Transportista.errors }}
+                    {{ form_entrega.Transportista.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_entrega.Transportista }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Chapa</label>
+                    <label style="color: red;">*</label>
+                    <input type="text" name="Chapa" id="id_Chapa" required="True" class="form-control">
+                    <strong><p id="error_chapa" style="color: red;"></p></strong>                  
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_entrega.Operador.errors }}
+                    {{ form_entrega.Operador.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_entrega.Operador }}
+                  </div>
+                </div>
+                <div class="col-3" style="margin-top: 10px;">
+                 <div class="row">
+                  
+                  <label>Elaborar desde escaner</label>
+                  <input type="checkbox" name="crear_traslado_escaner_qr" id="id_crear_traslado_escaner_qr" class="mt-2 ml-1" style="width:40px; heigth:40px;" />
+                  </div> 
+                  <div class="row">
+<!-- 
+                  <input type="checkbox" name="crear_traslado_escaner" id="id_crear_traslado_escaner" style="margin-left: 10px;"/>
+                  <img src="{% static '/dist/img/barcode_icon.png' %}" style="width: 20px; height: 17px; margin-left: 5px;  margin-right: 15px;" role="button" id="barcode" />
+ -->
+
+                  
+
+                 <!--  <img src="{% static '/dist/img/qr_icon.png' %}" style="width: 20px; height: 18px; margin-left: 5px;" role="button" id="codeqr" /> -->
+
+                  </div> 
+                </div> 
+                
+                              
+              </div>
+
+              
+              <div class="row">
+                <div class="col-12">
+                  {% if request.path == '/entrega/add/monta-facturacion/' %}
+                  <h4>Relación de HBL</h4>
+                   {% else %}
+                  <h4 id="titulo_campo">Relación de comprobantes de entrega</h4>
+                   {% endif %}
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" id="id_list_comprobantes">
+                  <!-- <div class="form-group">
+                    {{ form_hbl_escaneados.HBL.errors }}
+                  {{ form_hbl_escaneados.HBL.label_tag }}
+                    <label>Listado de comprobantes:</label>
+                    <label style="color: red;">*</label>
+                    {{ form_hbl_escaneados.HBL }}
+                  </div> -->
+                  <div class="form-group">
+                    {{ form_hbl_escaneados.HBL_old.errors }}
+                    <!-- {{ form_hbl_escaneados.HBL_old.label_tag }} -->
+                    <!-- <label style="color: red;">*</label> -->
+                    {{ form_hbl_escaneados.HBL_old }}
+                  </div>
+                </div>
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" id="id_list_comprobantes_qr">
+                  <!-- <div class="form-group">
+                    {{ form_hbl_escaneados.HBL.errors }}
+                    {{ form_hbl_escaneados.HBL.label_tag }} 
+                    <label>Listado de comprobantes:</label>
+                    <label style="color: red;">*</label>
+                    {{ form_hbl_escaneados.HBL }}
+                  </div> -->
+                  <div class="form-group">
+                    {{ form_hbl_escaneados.HBL.errors }}
+                    <!-- {{ form_hbl_escaneados.HBL_old.label_tag }} -->
+                    <!-- <label style="color: red;">*</label> -->
+                    {{ form_hbl_escaneados.HBL }}
+                  </div>
+                </div>
+                <div class="col-12" id="id_div_table">
+                  <div class="form-group">
+                    
+                      
+                      <!-- <label id="id_label_list_comprobantes"> Listado de comprobantes</label>
+                      <input type="text" name="list_comprobantes" id="id_list_comprobantes"> -->
+                    
+                    <table class="table table-hover" id="inventario_table" name="inventario_table" style="text-align: center;">
+                      <thead>
+                        <tr>
+                          <th>
+                            <input type="checkbox" id="select_all_table"  />
+                            Seleccionar
+                          </th>
+                          <th>No de comprobante</th>
+                          <th>Nombre del destinatario</th>
+                          <th>CI de destinatario</th>
+                          <th>Provincia</th>
+                          <th>Municipio</th>
+                          <th>Cantidad de bultos</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_factura in facturas %}
+                        <tr>
+                          <td>
+                            <input type="hidden" value="{{current_factura.id}}" />
+                            <input type="checkbox" name="factura" value="{{current_factura.id}}" />
+                          </td>
+                          <td>{{current_factura.id}}</td>
+                          <td>{{current_factura.Destinatario.Nombre}}</td>
+                          <td>{{current_factura.Destinatario.CI}}</td>
+                          <td>{{current_factura.Destinatario.Provincia.Nombre}}</td>
+                          <td>{{current_factura.Destinatario.Municipio.Nombre}}</td>
+                          <td>{{current_factura.Inventario.count}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-left: auto; margin-right: auto;">
+              <div class="card-footer" style="text-align: center">
+                <button type="button" style="width: 30%; margin-right: 10px;" class="btn btn-danger" data-toggle="modal"
+                  data-target="#modal-cancelar">
+                  Cancelar
+                </button>
+                <button type="submit" style="width: 30%;" class="btn btn-primary">Aceptar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card -->
+      </div>
+      </div>
+    </form>
+</section>
+<!-- /.content -->
+
+<!-- modal-dialog-cancelar -->
+<div class="modal fade" id="modal-cancelar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cancelar operación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Usted va a salir de la operación actual</label>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <a href="{% url 'entrega_list' %}" class="btn btn-primary">Aceptar</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog-suspender-evento -->
+</div>
+{% endblock %}
+
+{% block js_content %} 
+
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+
+<script>
+    $( document ).ready(function() {
+        $('Select').attr('class', 'form-control');
+        $('input[type=text]').attr('class', 'form-control');
+        $('input[type=number]').attr('class', 'form-control');
+        $('textarea').attr('class', 'form-control');
+        $( "#id_list_comprobantes" ).hide();
+        $( "#id_list_comprobantes_qr" ).hide();
+        // Muestra campo para introducir los HBL escaneados
+
+        $('#id_crear_traslado_escaner').change(function () {
+             if($(this).prop('checked')){
+                $( "#id_div_table" ).hide();
+                $( "#id_list_comprobantes" ).show();
+                $( "#titulo_campo").text('Listado de HBL');
+                
+             }
+             else {
+
+                $( "#id_list_comprobantes" ).hide();
+                $( "#id_div_table" ).show();
+                $( "#titulo_campo").text('Listado de comprobantes');
+             }
+        });
+
+        $('#id_crear_traslado_escaner_qr').change(function () {
+             if($(this).prop('checked')){
+                $( "#id_div_table" ).hide();
+                 $( "#id_list_comprobantes_qr" ).show();
+                $( "#titulo_campo").text('Relación de HBL');
+                $( "#id_HBL").focus();
+
+             }
+             else {
+
+                $( "#id_list_comprobantes_qr" ).hide();
+                $( "#id_div_table" ).show();
+                $( "#titulo_campo").text('Relación de comprobantes de entrega');
+
+             }
+        });
+
+        //Crea la tabla 
+        $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_s Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": true,
+        "pageLength": 400,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": true,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }); //.buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+
+      // ------------------------Start Ajax Transportistas---------------------------
+
+      $('#id_Empresa').change(function(){
+        $('#id_Transportista').empty().append('<option value="">---------</option>');
+
+        $.ajax({
+          url: '{% url 'ajax_transportistas_load' %}',
+          method: 'GET',
+          data: {
+            'id_empresa': $('#id_Empresa').val()
+          },
+          success: function (data) {
+            var obj = JSON.parse(data);
+
+            for (x of obj) {
+              $('#id_Transportista').append($('<option>', {
+                value: x.pk,
+                text: x.fields.Nombre
+              }));
+            }
+          }
+        });
+      });
+
+      $('#id_Chapa').change(function(){
+        if($('#id_Transportista').val() != ''){
+          console.log($('#id_Transportista').val());
+          $.ajax({
+            url: '{% url 'ajax_existe_chapa_load' %}',
+            method: 'GET',
+            data: {
+              'id_Chapa': $('#id_Chapa').val(),
+              'transportista': $('#id_Transportista').val(),
+            },
+            success: function (data) {
+              // var obj = JSON.parse(data);
+              if(Object.keys(data).length !== 0){
+                  text = "";
+                  document.getElementById("error_chapa").innerHTML = text;
+              }
+              else{
+                text = "La chapa introducida no se encuentra en el sistema";
+                document.getElementById("error_chapa").innerHTML = text;
+              }
+            }
+          });
+        }
+        else{
+          text = "Debe seleccionar previamente el transportista";
+          document.getElementById("error_chapa").innerHTML = text;
+        }
+      });
+
+      // ------------------------End Ajax Transportistas-----------------------------
+
+
+    });
+
+
+</script>
+
+{% endblock %}

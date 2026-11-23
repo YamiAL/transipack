@@ -1,0 +1,238 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %}
+<style>
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+
+  .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('{% static "dist/img/loader.gif" %}') 50% 50% no-repeat rgb(243, 244, 245); 
+    opacity: .8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Importar manifiesto
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'no_nacionalizada_list' %}">Mercancías no nacionalizadas</a></li>
+                    <li class="breadcrumb-item active">
+                        Importar manifiesto
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <form action="" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.tipo_envio.errors }}
+                  {{ form.tipo_envio.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.tipo_envio }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.No_Contenedor.errors }}
+                  <!-- {{ form.No_Contenedor.label_tag }} -->
+                  <label id="id_label_No_Contenedor">Número de contenedor</label>
+                  <label id="id_label_No_Contenedor_r" style="color: red;">*</label>
+                  {{ form.No_Contenedor }}
+                  {{ form.AWB.errors }}
+                  <!-- {{ form.AWB.label_tag }} -->
+                  <label id="id_label_AWB">Número de guía aérea</label>
+                  <label id="id_label_AWB_r" style="color: red;">*</label>
+                  {{ form.AWB }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Aeropuerto_Origen.errors }}
+                  {{ form.Aeropuerto_Origen.label_tag }}
+                  {{ form.Aeropuerto_Origen }}
+                  <p id="error_letras_mayusculas"></p>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Manifiesto.errors }}
+                  {{ form.Manifiesto.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.Manifiesto }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Agencia.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.Agencia }}
+                </div>
+                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Pais.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.Pais }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Almacen.errors }}
+                  {{ form.Almacen.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.Almacen }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Fecha_Entrada_Puerto.errors }}
+                  {{ form.Fecha_Entrada_Puerto.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.Fecha_Entrada_Puerto }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.Fecha_Entrada.errors }}
+                  {{ form.Fecha_Entrada.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.Fecha_Entrada }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                  {{ form.File.errors }}
+                  {{ form.File.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.File }}
+                </div>
+                
+                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mt-3">
+                   {{ form.Rectificacion_Aduana.errors }}
+                  {{ form.Rectificacion_Aduana.label_tag }}
+                   <label style="color: red;">*</label>
+                  {{ form.Rectificacion_Aduana }}
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mt-3">
+                  <!-- {{ form.isPrepago.errors }} -->
+                  {{ form.isPrepago.label_tag }}
+                  <label style="color: red;">*</label>
+                  {{ form.isPrepago }}
+                </div>
+               
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-left: auto; margin-right: auto;">
+              <div class="card-footer" style="text-align: center">
+                <button type="button" style="width: 30%; margin-right: 10px;" class="btn btn-danger" data-toggle="modal"
+                  data-target="#modal-cancelar">
+                  Cancelar
+                </button>
+                <button type="button" id="submit_buttom" style="width: 30%;" class="btn btn-primary">Aceptar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card -->
+      </div>
+      </div>
+    </form>
+</section>
+<!-- /.content -->
+
+<!-- modal-dialog-cancelar -->
+<div class="modal fade" id="modal-cancelar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cancelar operación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Usted va a salir de la operación actual</label>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <a href="{% url 'no_nacionalizada_list' %}" class="btn btn-primary">Aceptar</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog-suspender-evento -->
+</div>
+{% endblock %}
+
+{% block js_content %} 
+
+<script>
+    $( document ).ready(function() {
+      /*
+        $('Select').attr('class', 'form-control');
+        $('input[type=text]').attr('class', 'form-control');
+        $('input[type=number]').attr('class', 'form-control');
+        $('textarea').attr('class', 'form-control');*/
+        $("#id_No_Contenedor").hide();
+        $("#id_label_No_Contenedor").hide();
+        $("#id_label_No_Contenedor_r").hide();
+        $("#error_letras_mayusculas").hide();
+
+    });
+
+    $('#submit_buttom').click(function(){
+      $('body').append('<div class="loader"></div>');
+      $('form').submit();
+    });
+
+    $('#id_tipo_envio').on('change', function () {
+        if ($(this).val() == 'aereo') {
+            $("#id_No_Contenedor").hide();
+            $("#id_label_No_Contenedor").hide();
+            $("#id_label_No_Contenedor_r").hide();
+            $("#id_AWB").show();
+            $("#id_label_AWB").show();
+            $("#id_label_AWB_r").show();
+
+        } else {
+            $("#id_No_Contenedor").show();
+            $("#id_label_No_Contenedor").show();
+            $("#id_label_No_Contenedor_r").show();
+
+            $("#id_AWB").hide();
+            $("#id_label_AWB").hide();
+            $("#id_label_AWB_r").hide();            
+        }
+    });
+
+    $('#id_Aeropuerto_Origen').on('keyup',function(){
+        var $input = $(this);
+        let valor = $input.val();
+        let validar = new RegExp("^[A-Za-záéíóúñÑÁÉÍÓÚ]+$");
+        if (validar.test(valor))
+        {
+          $input.val($input.val().toUpperCase());
+        }
+     });
+
+</script>
+
+{% endblock %}

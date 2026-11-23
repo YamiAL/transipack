@@ -1,0 +1,443 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Comprobantes de pago de destinatarios 
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> Comprobantes de pago de destinatarios </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="GET">
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Busquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.id.label_tag }}
+                            {{ facturas_filter.form.id }}
+                          </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.HBL.label_tag }}
+                            {{ facturas_filter.form.HBL }}
+                          </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.Nombre_Destinatario.label_tag }}
+                            {{ facturas_filter.form.Nombre_Destinatario }}
+                          </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.CI_Destinatario.label_tag }}
+                            {{ facturas_filter.form.CI_Destinatario }}
+                          </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.Fecha_desde.label_tag }}
+                            {{ facturas_filter.form.Fecha_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.Fecha_hasta.label_tag }}
+                            {{ facturas_filter.form.Fecha_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.Fecha_cobro_desde.label_tag }}
+                            {{ facturas_filter.form.Fecha_cobro_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ facturas_filter.form.Fecha_cobro_hasta.label_tag }}
+                            {{ facturas_filter.form.Fecha_cobro_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                          <button type="submit" style="margin-top: 32px;" class="btn btn-primary">Filtrar</button>
+                          <a href="{{ request.path }}" style="margin-top: 32px;"
+                            class="btn btn-primary">Limpiar</a>
+                        </div>
+                      </div>
+                    </form>
+                    <hr>
+                    <div class="row">
+                      <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                        <label>Acciones a ejecutar sobre filas seleccionadas</label>
+                        <select id="accion_tabla" name="accion_tabla" class="form-control" style="width: 100%;">
+                          <option value="0">---------</option>
+                          <!--
+                          <option value="1">Declarar como cobrada</option>
+                          -->
+                          {% if request.path == '/facturas/' %}
+                          <option value="1">Declarar como cobrado</option>
+                          <option value="2">Desestimar</option>
+                        
+                          {% endif %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+            </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid table-responsive">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <!-- Tipo de operacion-->
+                    <input type="hidden" id="operacion_tabla" name="operacion_tabla" value="0" />
+                    <table id="inventario_table" class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;">
+                            <input type="checkbox" id="select_all_table"  />
+                            Seleccionar
+                          </th>
+                          <th>No de factura</th>
+                          <th>Nombre del Destinatario</th>
+                          <th>CI del Destinatario</th>
+                          <th>Fecha de creación</th>
+                          <!-- <th>Fecha de cobro</th> -->
+                          
+                          <th>Importe total</th>
+                          <th>Recibo de ingreso</th>
+                          <th style="text-align: center;">Detalles</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_factura in page_obj %}
+                        <tr>
+                          <td style="text-align: center;"><input type="checkbox" name="inventario_id" value="{{current_factura.id}}"></td>
+                          <td>{{current_factura.id}}</td>
+                          <td>{{current_factura.Destinatario.Nombre}}</td>
+                          <td>{{current_factura.Destinatario.CI}}</td>
+                          <td>{{current_factura.Fecha|date:"d/M/Y"}}</td>
+                          <!-- <td>{{current_factura.Fecha_cobro|date:"d/M/Y"}}</td> -->
+                          <td>{{current_factura.Importe_Total_Factura|floatformat:2}}</td>
+                          <td>{% if current_factura.Recibo_Ingreso is None %}{% else %}{{ current_factura.Recibo_Ingreso }} {% endif %}</td>
+                          <td>
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                              <a href="{% if current_factura.Estado %} {% url 'factura_detalle_pdf' current_factura.id %} {% else %} # {% endif %}" {% if current_factura.Estado %} target="_blank" {% endif %} class="btn btn-primary"> Detalles </a>
+                              <a href="{% if current_factura.Estado %} {% url 'factura_detalle_img' current_factura.id %} {% else %} # {% endif %}" {% if current_factura.Estado %} target="_blank" {% endif %} class="btn btn-primary">  <i class="fas fa-print"></i></a>
+                            </div>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+<!-- modal-dialog-modal-facturas-cobradas -->
+<div class="modal fade" id="modal-facturas-cobradas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Declarar facturas como cobradas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <!-- <row> -->
+              {{ form_cobro_factura.Fecha_Cobro.errors }}
+              {{ form_cobro_factura.Fecha_Cobro.label_tag }}
+              {{ form_cobro_factura.Fecha_Cobro }}
+
+              <label>Recibo de Ingreso</label> 
+              <input type="text" name="recibo_ingreso" class="form-control" />
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="factura_cobro_submit_button" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-modal-facturas-desestimadas -->
+<div class="modal fade" id="modal-facturas-desestimadas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Declarar facturas como desestimadas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va desestimar estas facturas</label> 
+            <br>
+            <label>Este proceso es irreversible</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="factura_desestimar_submit_button" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-modal-exportar-comprobante -->
+<div class="modal fade" id="modal-exportar-facturas">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Exportar comprobantes</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            {{ form_rango_fechas.Fecha_Desde.errors }}
+              {{ form_rango_fechas.Fecha_Desde.label_tag }}
+              {{ form_rango_fechas.Fecha_Desde }}
+
+              {{ form_rango_fechas.Fecha_Hasta.errors }}
+              {{ form_rango_fechas.Fecha_Hasta.label_tag }}
+              {{ form_rango_fechas.Fecha_Hasta }}
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="exportar_factura_submit_button" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+</form>
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "order": [[ 0, "desc" ]],
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+      $('#inventario_table_paginate ul li a').click(function(){
+        
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+
+      //Acciones sobre las filas------------------------------------------------------------------------
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+
+      $("#accion_tabla" ).change(function() {
+        $('#operacion_tabla').val($("#accion_tabla" ).val());
+        
+        if ($("#accion_tabla" ).val() == '1'){
+          $("#modal-facturas-cobradas" ).modal('show');
+        }
+
+        if ($("#accion_tabla" ).val() == '2'){
+          $("#modal-facturas-desestimadas" ).modal('show');
+        }
+
+        if ($("#accion_tabla" ).val() == '3'){
+          $("#modal-exportar-facturas" ).modal('show');
+        }
+
+      });
+
+      $('#modal-facturas-cobradas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $('#operacion_tabla').val($("#accion_tabla" ).val());
+      })
+
+      $('#modal-facturas-desestimadas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $('#operacion_tabla').val($("#accion_tabla" ).val());
+      })
+
+      $('#modal-exportar-facturas').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $('#operacion_tabla').val($("#accion_tabla" ).val());
+      })
+
+      $('#factura_cobro_submit_button').click(function(){
+        $('#inventario_tabla_form').submit();
+      });
+
+      $('#factura_desestimar_submit_button').click(function(){
+        $('#inventario_tabla_form').submit();
+      });
+
+      $('#exportar_factura_submit_button').click(function(){
+        $('#inventario_tabla_form').submit();
+      });
+      
+    });
+
+    //Paginacion
+    function paginator_link(page){
+      $('#page_selector').val(page);
+      $('#filter_form').submit();
+    }
+
+      
+</script>
+
+{% endblock %}

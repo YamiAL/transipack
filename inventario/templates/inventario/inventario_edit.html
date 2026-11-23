@@ -1,0 +1,443 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+{% block css_content %}
+<style>
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {% if action == 'edit' %} Editar inventario {% endif %}
+              {% if action == 'add' %} Agregar inventario {% endif %}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active">
+                        {% if action == 'edit' %} Editar inventario {% endif %}
+                        {% if action == 'add' %} Agregar inventario {% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <h4>Información general {{ current_id_municipio.id }}</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Agencia.errors }}
+                    {{ form_inventario.Agencia.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.Agencia }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Pais_Origen.errors }}
+                    {{ form_inventario.Pais_Origen.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.Pais_Origen }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Manifiesto.errors }}
+                    {{ form_inventario.Manifiesto.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.Manifiesto }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.HBL.errors }}
+                    {{ form_inventario.HBL.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.HBL }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Cantidad_Bultos.errors }}
+                    {{ form_inventario.Cantidad_Bultos.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.Cantidad_Bultos }}
+                  </div>
+                </div>
+    
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Volumen.errors }}
+                    {{ form_inventario.Volumen.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.Volumen }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Peso.errors }}
+                    {{ form_inventario.Peso.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_inventario.Peso }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Precio.errors }}
+                    {{ form_inventario.Precio.label_tag }}
+                    {{ form_inventario.Precio }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Importe_Derecho_aduanal.errors }}
+                    {{ form_inventario.Importe_Derecho_aduanal.label_tag }}
+                    {{ form_inventario.Importe_Derecho_aduanal }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Importe_Servicio_aduanal.errors }}
+                    {{ form_inventario.Importe_Servicio_aduanal.label_tag }}
+                    {{ form_inventario.Importe_Servicio_aduanal }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Fecha_Entrada_Puerto.errors }}
+                    {{ form_inventario.Fecha_Entrada_Puerto.label_tag }}
+                    {{ form_inventario.Fecha_Entrada_Puerto }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Fecha_Entrada.errors }}
+                    {{ form_inventario.Fecha_Entrada.label_tag }}
+                    {{ form_inventario.Fecha_Entrada }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Almacen.errors }}
+                    {{ form_inventario.Almacen.label_tag }}
+                    {{ form_inventario.Almacen }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Ubicacion_Fila.errors }}
+                    {{ form_inventario.Ubicacion_Fila.label_tag }}
+                    {{ form_inventario.Ubicacion_Fila }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Ubicacion_Columna.errors }}
+                    {{ form_inventario.Ubicacion_Columna.label_tag }}
+                    {{ form_inventario.Ubicacion_Columna }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Incidencia.errors }}
+                    {{ form_inventario.Incidencia.label_tag }}
+                    {{ form_inventario.Incidencia }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.No_Contenedor.errors }}
+                    {{ form_inventario.No_Contenedor.label_tag }}
+                    {{ form_inventario.No_Contenedor }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.AWB.errors }}
+                    {{ form_inventario.AWB.label_tag }}
+                    {{ form_inventario.AWB }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_inventario.Categoria_Operacion.errors }}
+                    {{ form_inventario.Categoria_Operacion.label_tag }}
+                    {{ form_inventario.Categoria_Operacion }}
+                  </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                      {{ form_inventario.rectificacion_aduana.errors }}
+                      {{ form_inventario.rectificacion_aduana.label_tag }}
+                      {{ form_inventario.rectificacion_aduana }}
+                    </div>
+                </div>
+              
+              </div>
+              
+                <div class="row">
+                  <div class="col-12">
+                    <div class="form-group">
+                      {{ form_inventario.Observ_Incidencia.errors }}
+                      {{ form_inventario.Observ_Incidencia.label_tag }}
+                      {{ form_inventario.Observ_Incidencia }}
+                    </div>
+                  </div>
+                </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    {{ form_inventario.Contenido.errors }}
+                    {{ form_inventario.Contenido.label_tag }}
+                    {{ form_inventario.Contenido }}
+                  </div>
+                </div>
+              </div>
+              {% if request.user|has_group:"Comercial" or request.user.is_superuser%}
+              <div class="row">
+                <div class="col-12">
+                  <h4>Datos del destinatario</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_destinatario.Nombre.errors }}
+                    {{ form_destinatario.Nombre.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_destinatario.Nombre }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_destinatario.CI.errors }}
+                    {{ form_destinatario.CI.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_destinatario.CI }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_destinatario.Pasaporte_DNI.errors }}
+                    {{ form_destinatario.Pasaporte_DNI.label_tag }}
+                    {{ form_destinatario.Pasaporte_DNI }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_destinatario.Telefono.errors }}
+                    {{ form_destinatario.Telefono.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_destinatario.Telefono }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_destinatario.Provincia.errors }}
+                    {{ form_destinatario.Provincia.label_tag }}
+                    {{ form_destinatario.Provincia }}
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label for="id_Municipio">Municipio:</label>
+                    <select name="Municipio" class="form-control" id="id_Municipio">
+                      <option value="">---------</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    {{ form_destinatario.Direccion.errors }}
+                    {{ form_destinatario.Direccion.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_destinatario.Direccion }}
+                  </div>
+                </div>  
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <h4>Datos del remitente</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    {{ form_remitente.Nombre_Remitente.errors }}
+                    {{ form_remitente.Nombre_Remitente.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ form_remitente.Nombre_Remitente }}
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-left: auto; margin-right: auto;">
+              <div class="card-footer" style="text-align: center">
+                <button type="button" style="width: 30%; margin-right: 10px;" class="btn btn-danger" data-toggle="modal"
+                  data-target="#modal-cancelar">
+                  Cancelar
+                </button>
+                <button type="submit" style="width: 30%;" class="btn btn-primary">Aceptar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card -->
+      </div>
+      </div>
+    </form>
+</section>
+<!-- /.content -->
+
+<!-- modal-dialog-cancelar -->
+<div class="modal fade" id="modal-cancelar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cancelar operación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Usted va a salir de la operación actual</label>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                {% if action == 'edit' %}
+                <a href="{% url 'inventario_detail' id_inventario %}" class="btn btn-primary">Aceptar</a>
+                {% endif %}
+                {% if action == 'add' %}
+                <a href="{% url 'inventario_list' %}" class="btn btn-primary">Aceptar</a>
+                {% endif %}
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog-suspender-evento -->
+</div>
+{% endblock %}
+
+{% block js_content %} 
+
+<script>
+    $( document ).ready(function() {
+        
+      
+        $('Select').attr('class', 'form-control');
+        $('input[type=text]').attr('class', 'form-control');
+        $('input[type=number]').attr('class', 'form-control');
+        $('textarea').attr('class', 'form-control');
+
+        //Actualizacion de municipios segun provincia
+          $('#id_Provincia').change(function(){
+          $('#id_Municipio').empty().append('<option value="">---------</option>');
+
+          $.ajax({
+            url: '{% url 'ajax_municipio_load' %}',
+            method: 'GET',
+            data: {
+              'id_provincia': $('#id_Provincia').val()
+            },
+            success: function (data) {
+              var obj = JSON.parse(data);
+
+              for (x of obj) {
+                $('#id_Municipio').append($('<option>', {
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }
+            }
+          });
+        });
+
+        {% if action == 'edit' %}
+        //Cargando municipio cuando en la vista editar
+        $('#id_Provincia').append(function(){
+          $('#id_Municipio').empty().append('<option value="">---------</option>');
+
+          $.ajax({
+            url: '{% url 'ajax_municipio_load' %}',
+            method: 'GET',
+            data: {
+              'id_provincia': $('#id_Provincia').val()
+            },
+            success: function (data) {
+              var obj = JSON.parse(data);
+
+              for (x of obj) {
+                if ( {{ current_id_municipio.id }} == x.pk){
+                    $('#id_Municipio').append($('<option>', {
+                    selected: '',
+                    value: x.pk,
+                    text: x.fields.Nombre
+                  }))
+                }else{
+                    $('#id_Municipio').append($('<option>', {
+                    value: x.pk,
+                    text: x.fields.Nombre
+                  }))
+                }
+              }
+            }
+          });
+        });
+        {% endif %}
+
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,158 @@
+/* Administración: misma paleta que el resto de Cubanacan Express */
+html[data-theme="light"],
+:root {
+  --primary: #073b6f;
+  --secondary: #073b6f;
+  --accent: #4886bd;
+  --primary-fg: #fff;
+  --header-color: #fff;
+  --header-branding-color: #fff;
+  --header-bg: #073b6f;
+  --header-link-color: #fff;
+  --breadcrumbs-fg: #d5e0ea;
+  --breadcrumbs-link-fg: #fff;
+  --breadcrumbs-bg: #0a4d8c;
+  --link-fg: #073b6f;
+  --link-hover-color: #0a4d8c;
+  --link-selected-fg: #073b6f;
+  --hairline-color: #e4edf5;
+  --border-color: #cfd8e3;
+  --darkened-bg: #f7fafc;
+  --selected-bg: #eaf3fb;
+  --selected-row: #eaf3fb;
+  --button-fg: #fff;
+  --button-bg: #073b6f;
+  --button-hover-bg: #0a4d8c;
+  --default-button-bg: #4886bd;
+  --default-button-hover-bg: #073b6f;
+  --object-tools-bg: #4886bd;
+  --object-tools-hover-bg: #073b6f;
+}
+
+html[data-theme="dark"] {
+  --primary: #4886bd;
+  --secondary: #0b2744;
+  --accent: #8fb7d9;
+  --header-bg: #0b2744;
+  --header-branding-color: #fff;
+  --breadcrumbs-bg: #073b6f;
+  --link-fg: #8fb7d9;
+  --link-hover-color: #c5daf0;
+  --button-bg: #4886bd;
+  --button-hover-bg: #073b6f;
+  --default-button-bg: #4886bd;
+}
+
+#header {
+  box-shadow: 0 1px 6px rgba(7, 59, 111, 0.18);
+}
+
+#branding h1,
+#site-name,
+#site-name a {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+  background: #073b6f;
+  color: #fff;
+}
+
+#changelist-filter h2 {
+  background: #073b6f;
+  color: #fff;
+}
+
+#result_list thead th,
+.change-list .results table thead th {
+  background: #073b6f;
+  color: #fff;
+}
+
+#result_list thead th a,
+#result_list thead th a:link,
+#result_list thead th a:visited {
+  color: #fff;
+}
+
+#result_list tbody tr:nth-child(even) {
+  background: #f7fafc;
+}
+
+#result_list tbody tr:hover {
+  background: #eaf3fb;
+}
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+  border-radius: 6px;
+  border: 0;
+  font-weight: 600;
+}
+
+.object-tools a {
+  border-radius: 6px;
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+  color: #073b6f;
+  font-weight: 600;
+}
+
+#nav-filter {
+  border-radius: 6px;
+  border-color: #cfd8e3;
+}
+
+.breadcrumbs {
+  font-size: 13px;
+}
+
+div.breadcrumbs a:focus,
+div.breadcrumbs a:hover {
+  color: #fff;
+}
+
+.login #header {
+  background: #073b6f;
+}
+
+.login #site-name a {
+  color: #fff;
+}
+
+.login #container {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e4edf5;
+  box-shadow: 0 1px 8px rgba(7, 59, 111, 0.12);
+}
+
+.login .form-row input {
+  border-radius: 6px;
+  border-color: #cfd8e3;
+}
+
+.login .submit-row input {
+  width: 100%;
+  background: #073b6f;
+}
+
+.dashboard #content {
+  padding-top: 16px;
+}
+
+.app-inventario .module,
+.app-auth .module,
+.app-auditoria .module {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e4edf5;
+}

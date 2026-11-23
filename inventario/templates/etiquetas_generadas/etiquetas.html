@@ -1,0 +1,190 @@
+
+{% load static %}
+{% load delete_underscore %}
+{% load qr_code %}
+<html>
+
+<head>
+    <!-- {% block css_content %} -->
+    <link rel="stylesheet" href="{% static '/plugins/barcode/JsBarcode.css' %}"> 
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/code39_all.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39.css' %}">   
+    <link rel="stylesheet" href="{% static '/plugins/code-39-font-master/css/code39_L.css' %}">   
+    <!-- {% endblock %} -->
+
+    <style>
+        @page {
+            /* Configuracion general de la hoja */
+            /* size: a4 landscape; */
+            size: a4; 
+            margin: 1cm, 1cm, 1cm, 1cm;
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 180pt;
+                width: 505pt;
+                top: 810pt;
+                height: 20pt;
+            }
+        }
+
+        th,
+        th {
+            font-size: 6px;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 6px;
+            padding: 2px;
+            word-wrap: break-word,
+        }
+
+        .first-td {
+            font-size: 6px;
+            padding: 1px;
+            word-wrap: break-word,
+        }
+
+        .table-info-td {
+            font-size: 6px;
+            padding: 0.8px;
+            word-wrap: break-word,
+        }
+
+        #descripcion_cargas {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 1px;
+        }
+
+        #footer_content label{
+            font-size: 6px;
+        }
+         #agencia{text-transform:uppercase}
+    </style>
+</head>
+
+<body>
+    
+    {% for paquete in listado_paquetes %}
+    <table border="0">
+        <tbody>
+            <tr>
+                <td style="font-size: 6">
+                    <strong >CUBANACAN</strong>
+                    <br>
+                    <strong >EXPRESS</strong>
+                </td>
+                <td style="font-size: 6" class="header-td" >
+                   <strong id="agencia"> {{paquete.Agencia}} </strong>
+                </td>
+               <td rowspan="7" >
+                {% qr_from_text paquete.qr size="s" image_format="png" error_correction="L" %}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 6" class="header-td" >
+                  <strong >DESTINATARIO</strong>  
+                </td>
+                <td class="header-td" >
+                  <p style="font-size: 6"> {{paquete.Destinatario}} </p>  
+                </td>
+                <td class="first-td" >
+                                        
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td" style="font-size: 6">
+                  <strong >CARNET IDENT.</strong>  
+                </td>
+                <td class="header-td" style="font-size: 6">
+                  <p > {{paquete.Destinatario.CI}} </p>  
+                </td>
+                <td class="first-td">                    
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td" style="font-size: 6">
+                  <strong >DIRECCIÓN</strong>  
+                </td>
+                <td class="header-td" style="font-size: 6">
+                  <p > {{paquete.Destinatario.Direccion}} </p>  
+                </td>
+                <td class="first-td">                    
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td" style="font-size: 6">
+                  <strong >TELÉFONO</strong>  
+                </td>
+                <td class="header-td" style="font-size: 6">
+                  <p > {{paquete.Destinatario.Telefono}} </p>  
+                </td>
+                <td class="first-td">                    
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td" style="font-size: 6">
+                  <strong >PROVINCIA</strong>  
+                </td>
+                <td class="header-td" style="font-size: 6">
+                  <p > {{paquete.Destinatario.Provincia}} </p>  
+                </td>
+                <td class="first-td">                    
+                </td>
+            </tr>
+            <tr>
+                <td class="header-td" style="font-size: 6">
+                  <strong >MUNICIPIO</strong>  
+                </td>
+                <td class="header-td" style="font-size: 6">
+                  <p > {{paquete.Destinatario.Municipio}} </p>  
+                </td>
+                <td class="first-td">                    
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table>
+        <tbody>
+
+            <tr>
+                
+                <td class="header-td" colspan="4"style="font-size: 6">
+                  <p > <strong >TOTAL DE KG:</strong>{{paquete.Peso}}<strong style="margin-left:10px" >       TOTAL DE BULTOS:</strong> {{paquete.Cantidad_Bultos}} </p>  
+                </td>   
+            </tr>
+            
+        </tbody>
+    </table>
+    <hr>
+    <table>
+        <tbody>
+            <tr>
+                <td colspan="4" style="font-size: 6">
+                    <p > {{paquete.HBL}} <br> {{paquete.Peso}} <br> {{paquete.Categoria_Operacion}} <br> {{paquete.Contenido}}</p>
+                </td>    
+                <td colspan="8">  
+                <img style="margin-left:10px" width="600px" height="200px"
+                        src="{{request.scheme}}://{{request.get_host}}/media/QR/paquete_{{paquete.HBL}}.png" />       
+                </td>
+            </tr>
+         </tbody>
+    </table>
+    <div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div> 
+    {% endfor %}
+   
+    {% block js_content %}
+    <script type="text/javascript" src="{% static '/plugins/htmlbarcode_src/code39.js' %}"></script>          
+    <script type="text/javascript" src="{% static '/plugins/barcode/JsBarcode.all.min.js ' %}"></script>         
+    <script type="text/javascript">   
+        
+        JsBarcode(".barcode").init();
+    </script>         
+    {% endblock %}
+</body>
+
+</html>

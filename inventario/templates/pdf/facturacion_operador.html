@@ -1,0 +1,236 @@
+{% load static %}
+{% load delete_underscore %}
+<html>
+
+<head>
+    <style>
+        @page {
+            /* Configuracion general de la hoja */
+            /* size: a4 landscape; */
+            size: a4; 
+            margin: 1cm, 1cm, 1cm, 1cm;
+
+            @frame footer_frame {
+                /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 180pt;
+                width: 505pt;
+                top: 810pt;
+                height: 20pt;
+            }
+        }
+
+        th,
+        th {
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 8px;
+            padding: 2px;
+            word-wrap: break-word,
+        }
+
+        .first-td {
+            font-size: 8px;
+            padding: 1px;
+            word-wrap: break-word,
+        }
+
+        .table-info-td {
+            font-size: 6px;
+            padding: 0.8px;
+            word-wrap: break-word,
+        }
+
+        #descripcion_cargas {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 1px;
+        }
+
+        #footer_content label{
+            font-size: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <img src="{{request.scheme}}://{{request.get_host}}{% static '/img/criminal.jpg' %}" /> !-->
+    <table border="0">
+        <tbody>
+            <tr>
+                <td rowspan="2" style="width: 100px; height: 40px;"><img style="height: 100%; width: 100%;"
+                        src="{{request.scheme}}://{{request.get_host}}{% static '/dist/img/logo_cubanacan_express_sin_fondo.png' %}" />
+                </td>
+                <td class="header-td">
+                    <!-- <h1 style="text-align: left; font-size: 10px; margin-left: 120px;">COMPROBANTE DE ENTREGA AL OPERADOR No: {{current_factura.id}}</h1> --> 
+                    <h1 style="text-align: left; font-size: 10px; margin-left: 120px;">MANIFIESTO DE CARGA DEL OPERADOR No: {{current_factura.id}}</h1>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h1 style="text-align: left; font-size: 10px; margin-left: 170px;">Fecha de facturación: {{current_factura.Fecha_Creacion|date:"d/m/Y" }}</h1> 
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table style="margin-top:10px">
+        <tbody>
+            <tr>
+             <td class="first-td" colspan="12">
+                    <strong>TRANSPORTADO POR:</strong>                     
+                </td>
+            </tr>
+            <tr>
+                <td class="first-td" colspan="4">
+                    <strong>Nombre y Apellidos:</strong> {{transportista.Nombre}}                    
+                </td>
+                <td class="first-td" colspan="3">
+                    <strong>Carnet de Identidad:</strong> {{transportista.CI}}                    
+                </td>
+                <td class="first-td" colspan="2">
+                    <strong>Chapa:</strong> {{chapa.Chapa}}
+                </td>
+                <td class="first-td" colspan="4">
+                    <strong>Empresa:</strong> {{transportista.Empresa}}
+                </td>
+            </tr>
+            <tr>
+                <td class="first-td" colspan="1">
+                    <strong>Teléfono:</strong> {{transportista.Telefono}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td colspan="3" style="text-align: center;" class="first-td"><strong>RELACIÓN DE COMPROBANTES DE ENTREGA DE DESTINATARIOS</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    
+    <table border="0.5" style="border-collapse: collapse; text-align: center;">
+        <tbody>
+            <tr>
+                <td class="table-info-td" style="width: 100px;"><strong>No de comprobante</strong></td>
+                <td class="table-info-td" style="width: 100px;"><strong>Nombre del destinatario</strong></td>
+                <td class="table-info-td" style="width: 125px;"><strong>CI de destinatario</strong></td>
+                <td class="table-info-td" style="width: 125px;"><strong>Provincia</strong></td>
+                <td class="table-info-td" style="width: 125px;"><strong>Municipio</strong></td>
+                <td class="table-info-td" style="width: 125px;"><strong>Cantidad de bultos</strong></td>
+                <td class="table-info-td" style="width: 125px;"><strong>Importe</strong></td>
+            </tr>
+            {% for current_factura_destinatario in current_factura.Facturas_Destinatarios.all %}
+            <tr>
+                <td class="table-info-td" style="width: 100px;">{{current_factura_destinatario.id}}</td>
+                <td class="table-info-td" style="width: 100px;">{{current_factura_destinatario.Destinatario.Nombre}}</td>
+                <td class="table-info-td" style="width: 125px;">{{current_factura_destinatario.Destinatario.CI}}</td>
+                <td class="table-info-td" style="width: 125px;">{{current_factura_destinatario.Destinatario.Provincia.Nombre}}</td>
+                <td class="table-info-td" style="width: 125px;">{{current_factura_destinatario.Destinatario.Municipio.Nombre}}</td>
+                <td class="table-info-td" style="width: 125px;">{{current_factura_destinatario.Inventario.count}}</td>
+                <td class="table-info-td" style="width: 125px;">{{current_factura_destinatario.Importe_Total_Factura|floatformat:2}} CUP</td>
+            </tr>
+            <tr>
+                <td class="table-info-td" colspan="7" style="text-align: left;">
+                    <strong>DESCRIPCIÓN DE HBL: </strong>
+
+                    {% for current_inventario in current_factura_destinatario.Inventario.all %}
+                        {{current_inventario.HBL}},
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            {% if current_factura.Importe_Cobrado %}
+            <tr>
+                <td class="first-td" ><strong>IMPORTE PAGADO: {{current_factura.Importe_Cobrado|floatformat:2}} CUP </strong></td>
+            </tr>
+            <tr>
+                <td class="first-td" ><strong>IMPORTE PENDIENTE DE PAGO: {{importe_pendiente_pago|floatformat:2}} CUP </strong></td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td class="first-td" ><strong>IMPORTE TOTAL A PAGAR: {{current_factura.Importe|floatformat:2}} CUP </strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            <tr>
+                <td class="first-td" colspan="2">
+                    <strong>ENTREGADO POR:</strong><br>
+                    Nombre y apellidos <br>
+                    Carnet de identidad<br>
+                    Fecha
+                </td>
+                <td class="first-td" colspan="2">
+                    <strong>RECIBIDO POR:</strong><br>
+                    Nombre y apellidos <br>
+                    Carnet de identidad<br>
+                    Fecha
+                </td>
+            </tr>
+            <tr>
+                <td class="first-td" colspan="4">
+                    
+                </td>
+            </tr>
+            <tr>
+                <td class="first-td" colspan="2">
+                    <strong>FACTURADO POR:</strong> {{current_factura.User_Facturador.get_full_name}}
+                </td>
+                <td class="first-td" colspan="2">
+                    <strong>FACTURAR A:</strong> {{entrega.Operador.Nombre}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table border="0" style="border-collapse: collapse;margin-top: 20px;">
+        <tbody>
+            <tr>
+                <td class="first-td" colspan="2">
+                    <strong>COBRADO POR:</strong><br>
+                    Nombre y apellidos: <strong>{{current_factura.User_Cobrador}}</strong> <br>
+                    Fecha de cobro:<strong>{{current_factura.Fecha_Cobro|date:"d/m/Y"}}</strong>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--
+    <table border="0" style="border-collapse: collapse;">
+        <tbody>
+            <hr>
+            <tr>
+                <td class="first-td" colspan="2">
+                    <strong >PAGAR POR ENZONA</strong><br>
+                    <img width="200px" height="200px"
+                        src="{{request.scheme}}://{{request.get_host}}/media/QR/factura_{{current_factura.id_factura}}.png" />
+                </td>
+                <td class="first-td" colspan="2">
+                    <strong>PAGAR POR TRANSFERMÓVIL</strong><br>
+                    <img width="200px" height="200px"
+                        src="{{request.scheme}}://{{request.get_host}}/media/QR/factura_{{current_factura.id_factura}}.png" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    -->
+    <div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div> 
+    <div id="footer_content">
+        <label>Sistema de Gestión de Paquetería TRANSIPACK v 1.0. Desarrollado por SITRANS</label>
+    </div>
+     
+</body>
+
+</html>

@@ -1,0 +1,399 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {{header_text}}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> {{breadcrumb_text}} </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="GET">
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Búsquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Manifiesto.label_tag }}
+                            {{ inventario_filter.form.Manifiesto }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.No_Contenedor.label_tag }}
+                            {{ inventario_filter.form.No_Contenedor }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.HBL.label_tag }}
+                            {{ inventario_filter.form.HBL }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Almacen.label_tag }}
+                            {{ inventario_filter.form.Almacen }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Destinatario_Nombre.label_tag }}
+                            {{ inventario_filter.form.Destinatario_Nombre }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Destinatario_CI.label_tag }}
+                            {{ inventario_filter.form.Destinatario_CI }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Destinatario_Provincia.label_tag }}
+                            {{ inventario_filter.form.Destinatario_Provincia }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            <label for="id_Destinatario_Municipio">Municipio:</label>
+                            <select name="Destinatario_Municipio" class="form-control" id="id_Destinatario_Municipio">
+                              <option value="">---------</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrada_Alamcen_desde.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrada_Alamcen_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Fecha_Entrada_Alamcen_hasta.label_tag }}
+                            {{ inventario_filter.form.Fecha_Entrada_Alamcen_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-12">
+                          <a href="{{ request.path }}" style="float: right;" class="btn btn-primary">Limpiar</a>
+                          <button type="submit" style="float: right; margin-right: 10px;" class="btn btn-primary">Filtrar</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </section>
+            </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;">
+                            <input type="checkbox" id="select_all_table"  />
+                            Seleccionar
+                          </th>
+                          <th>Manifiesto</th>
+                          <th>HBL</th>
+                          <th>Nombre y apellidos del destinatario</th>
+                          <th>CI</th>
+                          <th>Dirección</th>
+                          <th>Almacén</th>
+                          <th>OPCIONES</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_inventario in inventario %}
+                        <tr>
+                          <td style="text-align: center;"><input type="checkbox" name="inventario_id" value="{{current_inventario.id}}"></td>
+                          <td>{{current_inventario.Manifiesto}}</td>
+                          <td>{{current_inventario.HBL}}</td>
+                          <td>{{current_inventario.Destinatario.Nombre}}</td>
+                          <td>{{current_inventario.Destinatario.CI}}</td>
+                          <td>{{current_inventario.Destinatario.Direccion}}</td>
+                          <td>{{current_inventario.Almacen}}</td>
+                          <td>
+                            <a href="{% url 'inventario_detail' current_inventario.id %}" class="btn btn-block btn-primary"> Detalles </a>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+
+
+
+
+</form>
+
+
+
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    
+    $( document ).ready(function() {
+      
+      //Acciones de mover inventario---------------------
+      
+
+      // $('#id_Provincia_Destinatario').change(function(){
+      //   $('#id_Municipio_Destinatario').empty().append('<option value="">---------</option>');
+
+      //   $.ajax({
+      //     url: '{% url 'ajax_municipio_load' %}',
+      //     method: 'GET',
+      //     data: {
+      //       'id_provincia': $('#id_Provincia_Destinatario').val()
+      //     },
+      //     success: function (data) {
+      //       var obj = JSON.parse(data);
+
+      //       for (x of obj) {
+      //         $('#id_Municipio_Destinatario').append($('<option>', {
+      //           value: x.pk,
+      //           text: x.fields.Nombre
+      //         }));
+      //       }
+      //     }
+      //   });
+      // });
+
+      
+
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+      $('#inventario_table_paginate ul li a').click(function(){
+        
+      });
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+    
+      //Ajax de listado de municipios---------------------------------------------------------------------------
+      //Actualizacion al cambiar la provincia  
+      // $("#id_Destinatario_Provincia").change(function () {
+      //   actualiza_municipio($("#id_Destinatario_Provincia").val());
+      // });  
+
+      //Identificando si existe alguna provincia cargada al hacer get
+      // const url = window.location.search;
+      // const urlParametro = new URLSearchParams(url);
+      // const id_provincia = urlParametro.get("Destinatario_Provincia");
+
+      // if (id_provincia){
+      //   actualiza_municipio(id_provincia);
+      // }
+      
+      //Actualiza el listado de municipios        
+      // function actualiza_municipio(id_provincia){
+      //   //Captura si existe algun municipio en el request
+      //   const url = window.location.search;
+      //   const urlParametro = new URLSearchParams(url);
+      //   const id_municipio = urlParametro.get("Destinatario_Municipio");
+
+      //   //Eliminando todas las opiones existentes
+      //   $('#id_Destinatario_Municipio').empty().append('<option value="">---------</option>');
+
+      //   $.ajax({
+      //     url: '{% url 'ajax_municipio_load' %}',
+      //     method: 'GET',
+      //     data: {
+      //       'id_provincia': id_provincia
+      //     },
+      //     success: function (data) {
+      //       var obj = JSON.parse(data);
+
+      //       for (x of obj) {
+      //         if (id_municipio == x.pk){
+      //           $('#id_Destinatario_Municipio').append($('<option>', {
+      //             selected: '',
+      //             value: x.pk,
+      //             text: x.fields.Nombre
+      //           }));
+      //         }else{
+      //           $('#id_Destinatario_Municipio').append($('<option>', {
+      //             value: x.pk,
+      //             text: x.fields.Nombre
+      //           }));
+      //         }
+      //       }
+      //     }
+      //   });
+      //   return;
+      // }
+      //Fin de trabajo con municipios---------------------------------------------------------------------------
+    });
+
+    //Paginacion
+    function paginator_link(page){
+      $('#page_selector').val(page);
+      $('#filter_form').submit();
+    }
+
+    function setTime(){
+      setTimeout(function(){
+            window.location.href = '/comprobante-entrega/envio/';
+         }, 3000);
+    }
+
+      
+</script>
+
+{% endblock %}

@@ -1,0 +1,440 @@
+{% extends 'base_template.html' %}
+{% load static %}
+{% load auth_extras %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+
+    .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('{% static "dist/img/loader.gif" %}') 50% 50% no-repeat rgb(243, 244, 245); 
+    opacity: .8;
+}
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Listado de manifiestos
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> Manifiestos </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="filter_form" action="" method="GET">
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      <input type="hidden" id="id_page_field" name="page" value="" />
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Busquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.Manifiesto.label_tag }}
+                            {{ manifiesto_filter.form.Manifiesto }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.No_Contenedor.label_tag }}
+                            {{ manifiesto_filter.form.No_Contenedor }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.AWB.label_tag }}
+                            {{ manifiesto_filter.form.AWB }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.Agencia.label_tag }}
+                            {{ manifiesto_filter.form.Agencia }}
+                          </div>
+                        </div>
+                        <!-- <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.Fecha_Importacion_desde.label_tag }}
+                            {{ manifiesto_filter.form.Fecha_Importacion_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.Fecha_Importacion_hasta.label_tag }}
+                            {{ manifiesto_filter.form.Fecha_Importacion_hasta }}
+                          </div>
+                        </div> -->
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <button type="submit" style="margin-top: 32px;" class="btn btn-primary">Filtrar</button>
+                          <a href="{{ request.path }}" style="margin-top: 32px;"
+                            class="btn btn-primary">Limpiar</a>
+                        </div>
+                      </div>
+                    </form>
+                     <hr>
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Acciones a ejecutar sobre filas seleccionadas</label>
+                          <select id="accion_tabla" name="accion_tabla" class="form-control" style="width: 100%;">
+                            <option value="0">---------</option>
+                            {% if request.path == '/manifiestos/' %}
+                              <option value="10">Habilitar manifiesto</option>
+                              <option value="11">Deshabilitar manifiesto</option>
+                            {% endif %}
+                            </select>
+                        </div>
+                      </div>
+                  </div>
+                </section>
+            </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <!-- Tipo de operacion-->
+                    <input type="hidden" id="operacion_tabla" name="operacion_tabla" value="" />
+                    <table id="inventario_table" class="table table-hover table-sm table-striped">
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;">
+                            <input type="checkbox" id="select_all_table"  />
+                            Seleccionar
+                          </th>
+                          <th>No de manifiesto</th>
+                          <th>Contenedor / Guía aérea</th>
+                          <th>Fecha de importación</th>
+                          <th>Prepago</th>
+                          <th>Habilitado</th>
+                          <th>Archivo</th>
+                          {% if perms.inventario.delete_manifiesto or perms.inventario.can_generar_boleta or request.user.is_superuser%}
+                          <th>OPCIONES</th>
+                          {% endif %}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_manifiesto in page_obj %}
+                        <tr>
+                          <td style="text-align: center;"><input type="checkbox" name="manifiesto_id" value="{{current_manifiesto.id}}"></td>
+                          <td>{{current_manifiesto.Manifiesto}}</td>
+                          <td>{% if current_manifiesto.No_Contenedor %}{{current_manifiesto.No_Contenedor}}{% else %}{{current_manifiesto.AWB}}{% endif %}</td>
+                          <td>{{current_manifiesto.Fecha_Importacion}}</td>
+                          <td>{% if current_manifiesto.isPrepago is True %}Sí{% else %}No {% endif %}</td>
+                          <td style="text-align:center">
+                            {% if current_manifiesto.Habilitado %}
+                              <i class="fa fa-check text-success"></i>
+                            {% else %} 
+                              <i class="fa fa-times text-secondary"></i>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <a href="/media/{{current_manifiesto.File}}" >
+                            <!-- Descargar archivo -->
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                          </a>
+                          </td>
+                          {% if perms.inventario.can_do_delete_manifiesto or perms.inventario.can_generar_boleta or request.user.is_superuser %}
+                          <td>
+                            {% if perms.inventario.delete_manifiesto or request.user.is_superuser %}
+                            <div  data-toggle="modal" onclick="actualizacion_manifiesto({{current_manifiesto.id}})"
+                              data-target="#eliminar-manifiesto">
+                                   <i class="fa fa-trash text-danger"></i>
+                            </div>
+                            {% endif %}
+                            {% if perms.inventario.can_generar_boleta or request.user.is_superuser %}
+                            <a href="{% url 'generar_etiquetas' current_manifiesto.id %} "  name="Generar boletas" target="_blank" style="color: #B29AF7 !important;margin-right: 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-text" viewBox="0 0 16 16">
+                              <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
+                              <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                              </svg>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'resumen_manifiesto' current_manifiesto.id %} "  name="Generar boletas" target="_blank" style="color: #B29AF7 !important;margin-right: 5px;"><i class="fas fa-eye"></i>  </a>
+                          </td>
+                          {% endif %}
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}"><a href="#" {% if page_obj.has_previous %} onclick="paginator_link({{ page_obj.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if page_obj.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+                        {% if not page_obj.number == 1 and not page_obj.number == page_obj.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ page_obj.number }})" class="page-link">{{page_obj.number}}</a></li>
+                        {% endif %}
+                        <!--Boton Ultima pagina 1-->
+                        {% if page_obj.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if page_obj.number == page_obj.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ page_obj.paginator.num_pages }})" class="page-link">{{ page_obj.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not page_obj.has_next %} disabled {% endif %}"><a href="#" {% if page_obj.has_next %} onclick="paginator_link({{ page_obj.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </form>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+<!-- eliminar-manifiesto -->
+<div class="modal fade" id="eliminar-manifiesto">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Eliminar manifiesto</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form method="POST" action="{% url 'manifiesto_eliminar' %}" >
+            {% csrf_token %}
+            <input type="hidden" id="id_manifiesto" name="id_manifiesto" value="" />
+            <div class="modal-body">
+              <p>Usted va a eliminar el manifiesto seleccionado.</p>
+              <label>Esta operación es irreversible y eliminará todas las cargas que se relacionan en el manifiesto.</label> 
+              <p>¿Desea continuar?</p> 
+            </div>
+            <div class="modal-footer justify-content-between" style="margin-top: 10px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="button_submit"  >Aceptar</button>
+            </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<!-- modal-dialog-entregar-cargas -->
+<div class="modal fade" id="modal-habilitar-manifiesto">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Habilitar manifiesto</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a habilitar el manifiesto seleccionado</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_habilitar_manifiesto" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-dialog-deshabilitar-cargas -->
+<div class="modal fade" id="modal-deshabilitar-manifiesto">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Deshabilitar manifiesto</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a deshabilitar el manifiesto seleccionado</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_deshabilitar_manifiesto" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+
+      $("#accion_tabla" ).change(function() {
+        //Accion de mover inventario
+        if ($("#accion_tabla" ).val() == '10'){
+          $("#operacion_tabla").val('habilitar_manifiesto');
+          $("#modal-habilitar-manifiesto" ).modal('show');
+        }
+
+        if ($("#accion_tabla" ).val() == '11'){
+          $("#operacion_tabla").val('deshabilitar_manifiesto');
+          $("#modal-deshabilitar-manifiesto" ).modal('show');
+        }
+        }
+      );
+
+      //Acciones de habilitar manifiesto---------------------
+      $('#modal-habilitar-manifiesto').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_habilitar_manifiesto').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Acciones de deshabilitar manifiesto---------------------
+      $('#modal-deshabilitar-manifiesto').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+      })
+
+      $('#button_deshabilitar_manifiesto').click(function() {
+        $('#inventario_tabla_form').submit();
+      });
+
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": false,
+        "order": [[ 2, "desc" ]],
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+      $('#inventario_table_paginate ul li a').click(function(){
+        
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+
+      $('#button_submit').click(function(){
+        $('body').append('<div class="loader"></div>');
+        $('form').submit();
+      });
+    });
+
+    //Paginacion
+    function paginator_link(page){
+      $('#page_selector').val(page);
+      $('#filter_form').submit();
+    }
+
+    //Actualizacion de manifiesto
+    function actualizacion_manifiesto(id_manifiesto){
+      $('#id_manifiesto').val(id_manifiesto);
+    }
+
+      
+</script>
+
+{% endblock %}

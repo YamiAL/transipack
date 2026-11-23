@@ -1,0 +1,194 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block content %}
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-8">
+        <h1 class="m-0">Sistema de gestión de paquetería</h1>
+      </div>
+      <div class="col-sm-4">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item active">Inicio</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content pagina-inicio">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xl-3 col-md-6 col-sm-6">
+        <a href="{% url 'no_nacionalizada_list' %}" class="inicio-kpi">
+          <span class="inicio-kpi-icono"><i class="fas fa-box-open"></i></span>
+          <span class="inicio-kpi-dato">
+            <span class="inicio-kpi-valor">{{ cantidad_inventarios_no_nacionalizados }}</span>
+            <span class="inicio-kpi-label">Inventarios no nacionalizados</span>
+          </span>
+          <span class="inicio-kpi-link">Revisar <i class="fas fa-arrow-right"></i></span>
+        </a>
+      </div>
+      <div class="col-xl-3 col-md-6 col-sm-6">
+        <a href="{% url 'inventario_list' %}" class="inicio-kpi">
+          <span class="inicio-kpi-icono"><i class="fas fa-warehouse"></i></span>
+          <span class="inicio-kpi-dato">
+            <span class="inicio-kpi-valor">{{ cantidad_inventarios }}</span>
+            <span class="inicio-kpi-label">Inventarios en almacén</span>
+          </span>
+          <span class="inicio-kpi-link">Revisar <i class="fas fa-arrow-right"></i></span>
+        </a>
+      </div>
+      <div class="col-xl-3 col-md-6 col-sm-6">
+        <a href="{% url 'no_nacionalizada_list' %}" class="inicio-kpi alerta">
+          <span class="inicio-kpi-icono"><i class="fas fa-clock"></i></span>
+          <span class="inicio-kpi-dato">
+            <span class="inicio-kpi-valor">{{ inventario_no_nacionalizado_fuera_tiempo }}</span>
+            <span class="inicio-kpi-label">Cargas pasadas de 30 días</span>
+          </span>
+          <span class="inicio-kpi-link">Revisar <i class="fas fa-arrow-right"></i></span>
+        </a>
+      </div>
+      <div class="col-xl-3 col-md-6 col-sm-6">
+        <a href="{% url 'inventario_list' %}" class="inicio-kpi aviso">
+          <span class="inicio-kpi-icono"><i class="fas fa-exclamation-triangle"></i></span>
+          <span class="inicio-kpi-dato">
+            <span class="inicio-kpi-valor">{{ incidencias_del_dia }}</span>
+            <span class="inicio-kpi-label">Incidencias</span>
+          </span>
+          <span class="inicio-kpi-link">Revisar <i class="fas fa-arrow-right"></i></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card inicio-card">
+          <div class="card-header">
+            <h3 class="card-title">Entrada y salida de cargas en {% now "Y" %}</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart">
+              <canvas id="areaChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-6 col-lg-6 col-md-12">
+        <div class="card inicio-card">
+          <div class="card-header">
+            <h3 class="card-title">Comparativa mensual de cargas</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-6 col-lg-6 col-md-12">
+        <div class="card inicio-card">
+          <div class="card-header">
+            <h3 class="card-title">Distribución de paquetes por peso en {% now "Y" %}</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart">
+              <canvas id="donutChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block js_content %}
+<script>
+  $(document).ready(function () {
+    if (!$('#areaChart').length) {
+      return;
+    }
+
+    $.ajax({
+      url: '{% url "ajax_load_grafico_entrada_salida_cargas" %}',
+      method: 'GET',
+      success: function (data) {
+        var labels_content = [];
+        var cargas_entregadas = [];
+        var cargas_recibidas = [];
+
+        if (data.content.length == 1) {
+          labels_content.push('');
+          cargas_entregadas.push('');
+          cargas_recibidas.push('');
+        }
+
+        for (var i = 0; i < data.content.length; i++) {
+          labels_content.push(data.content[i].Label);
+          cargas_entregadas.push(data.content[i].Salida);
+          cargas_recibidas.push(data.content[i].Entrada);
+        }
+
+        var areaChartData = {
+          labels: labels_content,
+          datasets: [
+            {
+              label: 'Cargas entregadas',
+              backgroundColor: 'rgba(7, 59, 111, 0.18)',
+              borderColor: '#073b6f',
+              pointRadius: false,
+              data: cargas_entregadas
+            },
+            {
+              label: 'Cargas recibidas',
+              backgroundColor: 'rgba(72, 134, 189, 0.25)',
+              borderColor: '#4886bd',
+              pointRadius: false,
+              data: cargas_recibidas
+            }
+          ]
+        };
+
+        var chartOptions = {
+          maintainAspectRatio: false,
+          responsive: true,
+          legend: { display: true },
+          scales: {
+            xAxes: [{ gridLines: { color: '#edf2f7' } }],
+            yAxes: [{ gridLines: { color: '#edf2f7' } }]
+          }
+        };
+
+        new Chart($('#areaChart').get(0).getContext('2d'), {
+          type: 'line',
+          data: areaChartData,
+          options: chartOptions
+        });
+
+        new Chart($('#barChart').get(0).getContext('2d'), {
+          type: 'bar',
+          data: $.extend(true, {}, areaChartData),
+          options: chartOptions
+        });
+
+        new Chart($('#donutChart').get(0).getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ['0 - 1.5 KG', '1.5 - 3.0 KG', '3.0 - 20.0 KG', 'Mayor de 20 KG'],
+            datasets: [{
+              data: [data.bultos_de_0_15, data.bultos_de_15_3, data.bultos_de_3_20, data.bultos_mayor_de_20],
+              backgroundColor: ['#073b6f', '#0a4d8c', '#4886bd', '#8fb7d9']
+            }]
+          },
+          options: {
+            maintainAspectRatio: false,
+            responsive: true
+          }
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

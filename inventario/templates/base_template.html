@@ -1,0 +1,915 @@
+{% load static %}
+{% load auth_extras %}
+{% load delete_underscore %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema de gestión de paquetería - Cubanacan Express</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" 
+    href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"> 
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static '/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static '/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}"> 
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static '/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"> 
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static '/plugins/jqvmap/jqvmap.min.css' %}"> 
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static '/dist/css/adminlte.css' %}"> 
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static '/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  <!-- Daterange picker -->
+  <link rel="stylesheet" href="{% static '/plugins/daterangepicker/daterangepicker.css' %}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static '/plugins/summernote/summernote-bs4.min.css' %}"> 
+
+  {% block css_content %} 
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+    a.active{
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #343a40;
+    }
+    
+  </style>
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  {% endblock %}
+  <link rel="stylesheet" href="{% static '/dist/css/listados.css' %}?v=6">
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+  <div class="wrapper">
+
+    <!-- Navbar -->
+    {% if request.user.is_authenticated %}
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+      <!-- Left navbar links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+      </ul>
+
+      <!-- Right navbar links -->
+      <ul class="navbar-nav ml-auto">
+        <!-- Start Notifications -->
+        <li class="nav-item dropdown no-arrow">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            <span id="cant_notificaciones"></span>
+            <i class="fa fa-bell">       
+            </i>
+          </a>
+          <!-- Dropdown - User Information -->
+          <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="/inventario/reportes/cargas_traslado_mayor_cinco_dias/">
+              <i class="fas fa-box fa-sm fa-fw mr-2 text-gray-400"></i>
+              Traslados mayores de 5 días </a>            
+          </div>
+        </li>
+        <!-- End Notifications -->
+        <li class="nav-item dropdown no-arrow">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.username }}</span>
+            <i class="fa fa-user"></i>
+          </a>
+          <!-- Dropdown - User Information -->
+          <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="/admin/password_change/">
+              <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+              Cambiar contraseña</a>
+
+            {% if request.user.is_superuser or request.user.is_staff %}
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/admin/">
+                    <i class="fas fa-home fa-sm fa-fw mr-2 text-dark"></i>
+                    Administración
+                </a>
+            {% endif %}
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/logout/">
+              <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+              Cerrar sesión
+            </a>
+          </div>
+        </li>
+        <li class="nav-item no-arrow">
+          <a class="nav-link" href="{% url 'pagina_inicio_manual' %}" id="ayuda">
+          <i  class="fa fa-question-circle" aria-hidden="true"></i>
+        </a>
+        </li>
+      </ul>
+    </nav>
+    {% endif %}
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    {% if request.user.is_authenticated %}
+    <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #073b6f">
+      <!-- Brand Logo -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'inicio' %}" >
+            <img src="{% static '/dist/img/logo5.png' %}" style="width: 55%; margin-right: 30px;" />
+      </a>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" id="left_menu_bar">
+            {% if request.user.is_superuser %}
+            <li class="nav-item">
+              <a href="{% url 'permisos_usuario_list' %}" class="nav-link {% if request.path == '/permisos-usuario/' %} active {% endif %}" {% if request.path == '/permisos-usuario/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Listado de permisos de usuario</p>
+              </a>
+            </li>
+            {% endif %}
+            {% if request.user.is_superuser or request.user|has_group:"Administrador_Inventario" %}
+            <li class="nav-item">
+              <a href="{% url 'administrar_inventario' %}" class="nav-link {% if request.path == '/administrar-inventario/' %} active {% endif %}" {% if request.path == '/administrar-inventario/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Administrar Inventario</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'administrar_manifiesto' %}" class="nav-link {% if request.path == '/administrar-manifiesto/' %} active {% endif %}" {% if request.path == '/administrar-manifiesto/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Administrar Manifiesto</p>
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a href="{% url 'desglose' %}" class="nav-link {% if request.path == '/desglosar-guia-aerea/' %} active {% endif %}" {% if request.path == '/desglosar-guia-aerea/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Desglosar guía</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'exportar_facturas_to_dbf' %}" class="nav-link {% if request.path == '/factura/exportar/' %} active {% endif %}" {% if request.path == '/factura/exportar/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Exportar Facturas</p>
+              </a>
+            </li>
+            {% if request.user|has_group:"Consultor" or request.user|has_group:"Operador" or request.user.is_superuser %} 
+            
+            <li class="nav-item {% if active_menu == 'manifiestos' %} menu-open {% endif %}">
+              <a href="{% url 'manifiesto_list' %}" class="nav-link {% if request.path == '/manifiestos/' %} active {% endif %}">
+                <p>
+                  Manifiestos
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+            
+            {% if request.user|has_group:"Operador" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'importar_manifiesto' %}"
+                    class="nav-link {% if request.path == '/mercancia-no-nacionalizada/importar-manifiesto/' %} active {% endif %}">
+                    <p>Importar manifiesto</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'importar_no_manifestados' %}"
+                    class="nav-link {% if request.path == '/mercancia-no-nacionalizada/importar-no-manifestados/' %} active {% endif %}">
+                    <p>Importar no manifestados</p>
+                  </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+              <a href="{% url 'manifiesto_list' %}" class="nav-link {% if request.path == '/manifiestos/' %} active {% endif %}" {% if request.path == '/manifiestos/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Manifiestos</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'reporte_historico_agencia' %}"
+                class="nav-link {% if request.path == '/manifiestos/reporte-historico-agencia/' %} active {% endif %}">
+                <p>Histórico agencias</p>
+              </a>
+            </li>
+                </ul>
+            </li>
+            <li class="nav-item {% if active_menu == 'mercancia_inventario' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Inventarios 
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                
+                <li class="nav-item">
+                  <a href="{% url 'despacho_electronico' %}" class="nav-link {% if request.path == '/despacho-electronico/' %} active {% endif %}">
+                    <p>Despacho electrónico</p>
+                  </a>
+                </li>
+                <!--
+                 <li class="nav-item">
+                  <a href="{% url 'inventario_rectificar' %}" class="nav-link {% if request.path == '/inventario/rectificar/' %} active {% endif %}">
+                    <p>Rectificar Manifiesto</p>
+                  </a>
+                </li> -->
+                <li class="nav-item">
+                  <a href="{% url 'cargas_desagrupe' %}" class="nav-link {% if request.path == '/reportes/cargas-en-desagrupe/' %} active {% endif %}">
+                    <p>Cargas en desagrupe</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'inventario_no_existente' %}" class="nav-link {% if request.path == '/inventario/no-existente/' %} active {% endif %}">
+                    <p>No Manifestados</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'mercancia_inventario_incidencias' %}" class="nav-link {% if request.path == '/inventario/reportes/cargas-con-incidencias/' %} active {% endif %}">
+                    <p>Cargas con incidencias</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'no_nacionalizada_list' %}" class="nav-link {% if request.path == '/mercancia-no-nacionalizada/lista/' %} active {% endif %}">
+                    <p>No Nacionalizados</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'inventario_list' %}" class="nav-link {% if request.path == '/inventario/list/' %} active {% endif %}">
+                    <p>Nacionalizados</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'canal_rojo' %}" class="nav-link {% if request.path == '/inventario/canal-rojo/' %} active {% endif %}">
+                    <p>Canal Rojo</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'mercancia_trasbordo' %}" class="nav-link {% if request.path == '/inventario/reportes/trasbordo/' %} active {% endif %}">
+                    <p>Mercancías en Trasbordo</p>
+                  </a>
+                </li>
+                {% if request.user|has_group:"Operador" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'inventario_add' %}"
+                    class="nav-link {% if request.path == '/inventario/add/' %} active {% endif %}">
+                    <p>Agregar</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'nacionalizar_desde_aduana' %}"
+                    class="nav-link {% if request.path == '/inventario/nacionalizar-desde-aduana/' %} active {% endif %}">
+                    <p>Nacionalizar desde aduana</p>
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+            </li>
+            <li class="nav-item {% if active_menu == 'mercancia_entregadas' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Cargas entregadas
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'inventarios_entregados_list' %}" class="nav-link {% if request.path == '/mercancias-entregadas/list/' %} active {% endif %}">
+                    <p>Lista</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item {% if active_menu == 'mercancia_devolucion' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Cargas eliminadas de inventario
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'inventarios_devolucion_list' %}" class="nav-link {% if request.path == '/mercancias-devolucion/list/' %} active {% endif %}">
+                    <p>Lista</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+<!--             <li class="nav-item {% if active_menu == 'mercancia_no_localizable' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Cargas no localizables
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'inventarios_no_localizable_list' %}" class="nav-link {% if request.path == '/mercancias-no-localizables/list/' %} active {% endif %}">
+                    <p>Lista</p>
+                  </a>
+                </li>
+              </ul>
+            </li> -->
+            <li class="nav-item {% if active_menu == 'mercancia_traslado' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Traslados
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                {% if request.user|has_group:"Operador" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'entrega_add' %}" class="nav-link {% if request.path == '/entrega/add/' %} active {% endif %}">
+                    <p>Programar nuevo traslado</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'entrega_monta_facturacion_add' %}" class="nav-link {% if request.path == '/entrega/add/monta-facturacion/' %} active {% endif %}">
+                    <p>Nuevo traslado - facturas</p>
+                  </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a href="{% url 'entrega_programadas' %}" class="nav-link {% if request.path == '/entrega/programadas/' %} active {% endif %}">
+                    <p>Traslados</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'entrega_list' %}"
+                    class="nav-link {% if request.path == '/entrega/lista/' %} active {% endif %}">
+                    <p>Mercancías en traslado</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item {% if active_menu == 'mercancia_citas' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Programación de citas
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'cita_programadas' %}"
+                    class="nav-link {% if request.path == '/cita/programadas/' %} active {% endif %}">
+                    <p>Citas programadas</p>
+                  </a>
+                </li>
+                {% if request.user|has_group:"Operador" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'cita_add' %}" class="nav-link {% if request.path == '/cita/add/' %} active {% endif %}">
+                    <p>Programar nueva cita</p>
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+            </li>
+            <li class="nav-item {% if active_menu == 'comprobante_pago_destinatario' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Comprobantes de destinatarios 
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                {% if request.user|has_group:"Operador" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'comprobante_entrega_envios_pdf' %}"
+                    class="nav-link {% if request.path == '/comprobante-entrega/envio/' %} active {% endif %}">
+                    <p>Nuevo comprobante</p>
+                  </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a href="{% url 'facturas_list' %}" class="nav-link {% if request.path == '/facturas/' %} active {% endif %}">
+                    <p>Listar</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'facturas_cobradas_list' %}" class="nav-link {% if request.path == '/facturas/cobradas/' %} active {% endif %}">
+                    <p>Cobrados</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'facturas_desestimadas_list' %}" class="nav-link {% if request.path == '/facturas/desestimadas/' %} active {% endif %}">
+                    <p>Desestimados</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item {% if active_menu == 'comprobante_pago_operador' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Comprobantes de operadores 
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'comprobante_entrega_operadores' %}" class="nav-link {% if request.path == '/comprobante-entrega-operadores/' %} active {% endif %}">
+                    <p>Por cobrar</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'comprobante_entrega_operadores_cobrados' %}" class="nav-link {% if request.path == '/comprobante-entrega-operadores-cobrados/' %} active {% endif %}">
+                    <p>Cobrados</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            {% endif %}
+            {% if request.user|has_group:"Consultor" or request.user|has_group:"Operador" or request.user|has_group:"Contabilidad" or request.user.is_superuser or request.user|has_group:"Jefe de Transporte"%}
+            <li class="nav-item {% if active_menu == 'reportes' %} menu-open {% endif %}">
+              <a href="#" class="nav-link">
+                <p>
+                  Reportes
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                {% if request.user|has_group:"Consultor" or request.user|has_group:"Operador" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'inventarios_reportes' %}"
+                    class="nav-link {% if request.path == '/inventario/reportes/' %} active {% endif %}">
+                    <p>Búsqueda de cargas</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'parte_diario' %}" class="nav-link {% if request.path == '/reportes/parte-diario/' %} active {% endif %}">
+                    <p>Parte Diario</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'parte_operativo' %}" class="nav-link {% if request.path == '/reportes/parte-operativo/' %} active {% endif %}">
+                    <p>Parte Operativo</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'reporte_desempeno' %}" class="nav-link {% if request.path == '/reportes/desempeno/' %} active {% endif %}">
+                    <p>Reporte de producción</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'levantamiento_inventario' %}" class="nav-link {% if request.path == '/reportes/levantamiento-inventario/' %} active {% endif %}">
+                    <p>Rectificación de Inventario</p>
+                  </a>
+                </li>
+                {% endif %}
+                {% if request.user|has_group:"Jefe de Transporte" or request.user.is_superuser %}
+                
+                <li class="nav-item">
+                  <a href="{% url 'reporte_transportistas' %}" class="nav-link {% if request.path == '/reportes/cargas-transportadas/' %} active {% endif %}">
+                    <p>Reporte de transporte</p>
+                  </a>
+                </li>
+                {% endif %}
+                
+
+                {% if request.user|has_group:"Contabilidad" or request.user.is_superuser %}
+                <li class="nav-item">
+                  <a href="{% url 'reporte_ingresos_diarios' %}" class="nav-link {% if request.path == '/reportes/ingresos-diarios/' %} active {% endif %}">
+                    <p>Reporte de ingresos diarios</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'reporte_contable' %}" class="nav-link {% if request.path == '/reportes/reporte-contable/' %} active {% endif %}">
+                    <p>Reporte contable</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'reporte_contable_aduana' %}" class="nav-link {% if request.path == '/reportes/reporte-contable-aduana/' %} active {% endif %}">
+                    <p>Reporte contable - honorarios</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'reporte_devoluciones' %}" class="nav-link {% if request.path == '/reportes/devoluciones/' %} active {% endif %}">
+                    <p>Reporte contable - devoluciones</p>
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+            </li>
+            {% endif %}
+            {% if request.user|has_group:"Consultor" or request.user|has_group:"Operador" or request.user.is_superuser %} 
+
+            <li class="nav-item">
+              <a href="{% url 'tracking_view' %}" class="nav-link {% if request.path == '/tracking/' %} active {% endif %}" {% if request.path == '/tracking/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %} >
+                <p>Tracking</p>
+              </a>
+            </li>
+            {% endif %}
+             <li class="nav-item">
+              <a href="{% url 'rectificar_peso' %}" class="nav-link {% if request.path == '/rectificar-peso/' %} active {% endif %}" {% if request.path == '/rectificar-peso/' %} style="background-color: rgba(255, 255, 255, 0.9); color: #343a40;" {% endif %}>
+                <p>Rectificar peso</p>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+      </div>
+      <!-- /.sidebar -->
+    </aside>
+    {% endif %}
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" {% if not request.user.is_authenticated %} style="margin-left: 0px;" {% endif %}>
+      {% if user.is_authenticated %}
+      <!-- Mensajes -->
+      {% if messages %}
+      {% for message in messages %}
+      <div class="card-body">
+        {% if message.tags == 'error' %}
+        <div class="alert alert-danger alert-dismissible">
+          {% endif %}
+          {% if message.tags == 'info' %}
+          <div class="alert alert-info alert-dismissible">
+            {% endif %}
+            {% if message.tags == 'debug' %}
+            <div class="alert alert-info alert-dismissible">
+              {% endif %}
+              {% if message.tags == 'success' %}
+              <div class="alert alert-success alert-dismissible">
+                {% endif %}
+                {% if message.tags == 'warning' %}
+                <div class="alert alert-warning alert-dismissible">
+                  {% endif %}
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  {{ message }}
+                </div>
+              </div>
+              {% endfor %}
+              {% endif %}
+              <!-- / .Mensajes -->
+              {% endif %}
+
+              {% block content %}
+              {% endblock %}
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer" {% if not user.is_authenticated %} style="margin-left: 0px;" {% endif %}>
+              <strong>Copyright &copy; {% now "Y" %} <a href="https://www.sitrans.cu/">SITRANS</a>.</strong>
+              Todos los derechos reservados.
+              <div class="float-right d-none d-sm-inline-block">
+                <b>Versión</b> 1.0
+              </div>
+            </footer>
+
+            <!-- Control Sidebar -->
+            <aside class="control-sidebar control-sidebar-dark">
+              <!-- Control sidebar content goes here -->
+            </aside>
+            <!-- /.control-sidebar -->
+          </div>
+          <!-- ./wrapper -->
+
+
+
+          <!-- jQuery -->
+          <script src="{% static '/plugins/jquery/jquery.min.js' %}"></script>
+          <!-- jQuery UI 1.11.4 -->
+          <script src="{% static '/plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+          <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+          <script>
+            $.widget.bridge('uibutton', $.ui.button)
+          </script>
+          <!-- Bootstrap 4 -->
+          <script src="{% static '/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+          <!-- AdminLTE App -->
+          <script src="{% static '/dist/js/adminlte.js' %}"></script>
+          <!-- jquery-validation -->
+          <script src="{% static '/plugins/jquery-validation/jquery.validate.min.js' %}"></script>
+          <script src="{% static '/plugins/jquery-validation/localization/messages_es.min.js' %}"></script>
+          <!-- ChartJS -->
+          <script src="{% static '/plugins/chart.js/Chart.min.js' %}"></script> 
+          <!-- Sparkline -->
+          <script src="{% static '/plugins/sparklines/sparkline.js' %}"></script> 
+          <!-- JQVMap -->
+          <script src="{% static '/plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+          <script src="{% static '/plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script> 
+          <!-- jQuery Knob Chart -->
+          <script src="{% static '/plugins/jquery-knob/jquery.knob.min.js' %}"></script> 
+          <!-- daterangepicker -->
+          <script src="{% static '/plugins/moment/moment.min.js' %}"></script>
+          <script src="{% static '/plugins/daterangepicker/daterangepicker.js' %}"></script>
+          <!-- Tempusdominus Bootstrap 4 -->
+          <script src="{% static '/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+          <!-- Summernote -->
+          <script src="{% static '/plugins/summernote/summernote-bs4.min.js' %}"></script> 
+          <!-- overlayScrollbars -->
+          <script src="{% static '/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+          <!-- AdminLTE for demo purposes -->
+          <script src="{% static '/dist/js/demo.js' %}"></script>
+          <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+          <script src="{% static '/dist/js/pages/dashboard.js' %}"></script> 
+
+
+          {% block js_content %}
+          <!-- DataTables  & Plugins -->
+          <script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+          <script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+          <script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+          <script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+          <script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+          <script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+          
+          
+          <script>
+            $(document).ready(function () {
+              $('Select').attr('class', 'form-control');
+              $('input[type=text]').attr('class', 'form-control');
+              $('input[type=number]').attr('class', 'form-control');
+              $('textarea').attr('class', 'form-control');
+
+              //Crea la tabla 
+              $('table').DataTable({
+                language: {
+                  "decimal": "",
+                  "emptyTable": "No hay información",
+                  "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                  "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                  "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                  "infoPostFix": "",
+                  "thousands": ",",
+                  "lengthMenu": "Mostrar _MENU_ Entradas",
+                  "loadingRecords": "Cargando...",
+                  "processing": "Procesando...",
+                  "search": "Buscar:",
+                  "zeroRecords": "Sin resultados encontrados",
+                  "buttons": {
+                    "copy": "Copiar",
+                    "excel": "Exportar a excel",
+                    "pdf": "Exportar a PDF",
+                    "print": "Imprimir",
+
+                  },
+                  "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                  }
+                },
+                "paging": false,
+                "pageLength": 20,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": false,
+                "autoWidth": true,
+                "responsive": true,
+                "scrollCollapse": true,
+                //"scrollY": "300px",
+                "buttons": ["copy", "excel", "pdf", "print"]
+              }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+              //Agrega estilo al campo de busqueda de la tabla
+              $('#inventario_table_filter > label:nth-child(1)').css('width', '100%');
+              $('input.form-control:nth-child(1)').css('width', '80%');
+
+              //Agrega paginacion
+              $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+
+              //Ajax de listado de municipios---------------------------------------------------------------------------
+              //Actualizacion al cambiar la provincia  
+              $("#id_Destinatario_Provincia").change(function () {
+                actualiza_municipio($("#id_Destinatario_Provincia").val());
+              });  
+
+              //Identificando si existe alguna provincia cargada al hacer get
+              const url = window.location.search;
+              const urlParametro = new URLSearchParams(url);
+              const id_provincia = urlParametro.get("Destinatario_Provincia");
+
+              if (id_provincia){
+                actualiza_municipio(id_provincia);
+              }
+              
+              //Actualiza el listado de municipios        
+              function actualiza_municipio(id_provincia){
+                //Captura si existe algun municipio en el request
+                const url = window.location.search;
+                const urlParametro = new URLSearchParams(url);
+                const id_municipio = urlParametro.get("Destinatario_Municipio");
+
+                //Eliminando todas las opiones existentes
+                $('#id_Destinatario_Municipio').empty().append('<option value="">---------</option>');
+
+                $.ajax({
+                  url: '{% url 'ajax_municipio_load' %}',
+                  method: 'GET',
+                  data: {
+                    'id_provincia': id_provincia
+                  },
+                  success: function (data) {
+                    var obj = JSON.parse(data);
+
+                    for (x of obj) {
+                      if (id_municipio == x.pk){
+                        $('#id_Destinatario_Municipio').append($('<option>', {
+                          selected: '',
+                          value: x.pk,
+                          text: x.fields.Nombre
+                        }));
+                      }else{
+                        $('#id_Destinatario_Municipio').append($('<option>', {
+                          value: x.pk,
+                          text: x.fields.Nombre
+                        }));
+                      }
+                    }
+                  }
+                });
+                return;
+              }
+              //Fin de trabajo con municipios---------------------------------------------------------------------------
+              
+              //Trabajo con graficos-----------------------------------------------------------------------------------------
+              if ($('#areaChart').length) {
+              $.ajax({
+                  url: '{% url 'ajax_load_grafico_entrada_salida_cargas' %}',
+                  method: 'GET',
+                  data: {
+                  },
+                  success: function (data) {
+                    var labels_content = [];
+                    var cargas_entregadas = [];
+                    var cargas_recibidas = [];
+
+                    if (data.content.length == 1){
+                      labels_content.push('');
+                      cargas_entregadas.push('');
+                      cargas_recibidas.push('');
+                    }
+
+                    for(var i=0; i<data.content.length; i++){
+                      labels_content.push(data.content[i].Label);
+                      cargas_entregadas.push(data.content[i].Salida);
+                      cargas_recibidas.push(data.content[i].Entrada);
+                    }
+
+              
+                  //--------------
+                  //- AREA CHART -
+                  //--------------
+                  // Get context with jQuery - using jQuery's .get() method.
+                  var areaChartCanvas = $('#areaChart').get(0).getContext('2d')
+
+                  var areaChartData = {
+                    labels  : labels_content,
+                    datasets: [
+                      {
+                        label               : 'Cargas entregadas',
+                        backgroundColor     : 'rgba(60,141,188,0.9)',
+                        borderColor         : 'rgba(60,141,188,0.8)',
+                        pointRadius          : false,
+                        pointColor          : '#3b8bba',
+                        pointStrokeColor    : 'rgba(60,141,188,1)',
+                        pointHighlightFill  : '#fff',
+                        pointHighlightStroke: 'rgba(60,141,188,1)',
+                        data                : cargas_entregadas
+                      },
+                      {
+                        label               : 'Cargas recibidas',
+                        backgroundColor     : 'rgba(210, 214, 222, 1)',
+                        borderColor         : 'rgba(210, 214, 222, 1)',
+                        pointRadius         : false,
+                        pointColor          : 'rgba(210, 214, 222, 1)',
+                        pointStrokeColor    : '#c1c7d1',
+                        pointHighlightFill  : '#fff',
+                        pointHighlightStroke: 'rgba(220,220,220,1)',
+                        data                : cargas_recibidas
+                      },
+                    ]
+                  }
+
+                  var areaChartOptions = {
+                    maintainAspectRatio : false,
+                    responsive : true,
+                    legend: {
+                      display: true
+                    },
+                    scales: {
+                      xAxes: [{
+                        gridLines : {
+                          display : true,
+                        }
+                      }],
+                      yAxes: [{
+                        gridLines : {
+                          display : true,
+                        }
+                      }]
+                    }
+                  }
+
+                  // This will get the first returned node in the jQuery collection.
+                  new Chart(areaChartCanvas, {
+                    type: 'line',
+                    data: areaChartData,
+                    options: areaChartOptions
+                  })
+
+                  //-------------
+                  //- DONUT CHART -
+                  //-------------
+                  // Get context with jQuery - using jQuery's .get() method.
+                  var donutChartCanvas = $('#donutChart').get(0).getContext('2d')
+                  var donutData        = {
+                    labels: [
+                        '0 - 1.5 KG',
+                        '1.5 - 3.0 KG',
+                        '3.0 - 20.0 KG',
+                        'Mayor de 20 KG',
+                    ],
+                    datasets: [
+                      {
+                        data: [data.bultos_de_0_15, data.bultos_de_15_3,data.bultos_de_3_20,data.bultos_mayor_de_20],
+                        backgroundColor : [
+                          '#6EBAF1', 
+                          '#78C9E2',
+                          '#81D8D4',
+                          '#8BE7C5'
+                        ],
+                      }
+                    ]
+                  }
+                  var donutOptions     = {
+                    maintainAspectRatio : false,
+                    responsive : true,
+                  }
+                  //Create pie or douhnut chart
+                  // You can switch between pie and douhnut using the method below.
+                  new Chart(donutChartCanvas, {
+                    type: 'doughnut',
+                    data: donutData,
+                    options: donutOptions
+                  })
+
+                  //-------------
+                  //- BAR CHART -
+                  //-------------
+                  var barChartCanvas = $('#barChart').get(0).getContext('2d')
+                  var barChartData = $.extend(true, {}, areaChartData)
+                  var temp0 = areaChartData.datasets[0]
+                  var temp1 = areaChartData.datasets[1]
+                  barChartData.datasets[0] = temp1
+                  barChartData.datasets[1] = temp0
+
+                  var barChartOptions = {
+                    responsive              : true,
+                    maintainAspectRatio     : false,
+                    datasetFill             : false
+                  }
+
+                  new Chart(barChartCanvas, {
+                    type: 'bar',
+                    data: barChartData,
+                    options: barChartOptions
+                  })
+            }
+                });
+              }
+              //Fin de trabajo con graficos-----------------------------------------------------------------------------------
+            });
+            
+
+            //Paginacion
+            function paginator_link(page){
+              $('#page_selector').val(page);
+              $('#filter_form').submit();
+            }
+
+
+
+          </script>
+          
+          {% endblock %}
+
+          <script>
+            window.DATATABLE_SERVER_EXPORT_URL = "{% url 'exportar_documento' %}";
+          </script>
+          <script src="{% static '/dist/js/datatables-server-export.js' %}?v=3"></script>
+          
+          <script>
+            if (window.jQuery && jQuery.fn && jQuery.fn.validate) {
+              jQuery('form').validate({ onsubmit: false });
+            }
+            setTimeout(function() { $(".alert").hide(); }, 5000);
+          </script>
+
+</body>
+
+</html>

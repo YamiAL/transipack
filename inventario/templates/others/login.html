@@ -1,0 +1,68 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4 col-lg-8 col-md-8 col-sm-10" style="margin: auto; margin-top: 5%; text-align: center;">
+        <!-- <img src="{% static '/dist/img/logo.jpg' %}" alt="Sitrans" style="max-width: 80%;margin: auto;" />  -->
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-4 col-lg-8 col-md-8 col-sm-10" style="margin: auto; margin-top: 20px;">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title" style="text-align: center; float: none;">SISTEMA DE GESTIÓN DE PAQUETERÍA TRANSIPACK</h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- Mensajes -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="card-body">
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible">
+                    {% endif %}
+                    {% if message.tags == 'info' %}
+                    <div class="alert alert-info alert-dismissible">
+                        {% endif %}
+                        {% if message.tags == 'debug' %}
+                        <div class="alert alert-info alert-dismissible">
+                            {% endif %}
+                            {% if message.tags == 'success' %}
+                            <div class="alert alert-success alert-dismissible">
+                                {% endif %}
+                                {% if message.tags == 'warning' %}
+                                <div class="alert alert-warning alert-dismissible">
+                                    {% endif %}
+
+                                    <button type="button" class="close" data-dismiss="alert"
+                                        aria-hidden="true">×</button>
+                                    {{ message }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <!-- / .Mensajes -->
+                            <!-- form start -->
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Usuario</label>
+                                        <input type="text" name="username" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Contraseña</label>
+                                        <input type="password" name="password" class="form-control">
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+
+                                <div class="card-footer" style="text-align: center;">
+                                    <button type="submit" style="width: 25%;" class="btn btn-primary">Ingresar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endblock %}

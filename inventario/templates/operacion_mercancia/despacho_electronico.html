@@ -1,0 +1,296 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+  
+<style>
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+
+  .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('{% static "dist/img/loader.gif" %}') 50% 50% no-repeat rgb(243, 244, 245); 
+    opacity: .8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {% if request.path == '/despacho-electronico/' %}
+              Despacho electrónico
+              {% else %}
+              Nacionalizar cargas desde aduana
+              {% endif %}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active">
+                        {% if request.path == '/despacho-electronico/' %}
+                        Despacho electrónico
+                        {% else %}
+                        Nacionalizar cargas desde aduana
+                        {% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <h4>Complete la siguiente información</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                  <div class="form-group">
+                    {{ nacionalizad_aduana_form.Manifiesto.errors }}
+                    {{ nacionalizad_aduana_form.Manifiesto.label_tag }}
+                    <label style="color: red;">*</label>
+                    {{ nacionalizad_aduana_form.Manifiesto }}
+                  </div>
+                </div>
+              
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                  <div class="form-group">
+                    <!-- {{ nacionalizad_aduana_form.AWB.errors }} -->
+                    {{ nacionalizad_aduana_form.AWB.label_tag }}
+                     <label style="color: red;">*</label>
+                    {{ nacionalizad_aduana_form.AWB }}
+                  </div>
+                </div>
+
+              </div>
+              <hr class="col-12">
+                <div class="row">
+                  <div class="col-3">
+                    <h4>Mercancías marcadas</h4>
+                  </div>
+                  <div class="col-1">
+                    <i class="fa fa-plus fa-1x text-success" role="button"
+                                         style="margin-right: 15px;margin-left: 15px;" onclick="addInput();"></i>
+                                         
+                    <i class="fa fa-minus fa-1x text-danger" role="button" onclick="removeInput();"></i>
+                  </div>
+                </div>
+                <div class="row" id="paquetes_marcados">
+                  
+                </div>
+              <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                  <div class="form-group" >
+                    <button type="button" style="margin-top: 30px;" class="btn btn-primary" data-toggle="modal" id="nacionalizar_button" data-target="#modal-confirmar"> Aceptar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      </div>
+    </form>
+</section>
+
+<!-- modal-dialog-cancelar -->
+<div class="modal fade" id="modal-loader">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Cancelar operación</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <label>Usted va a salir de la operación actual</label>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+<!-- /.content -->
+
+<!-- modal-confirmar -->
+<div class="modal fade" id="modal-confirmar">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Confirmar operación</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <label id="tiempo_estimado"></label>
+              <label>¿Desea continuar?</label>
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="dialog_acept_button" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+{% endblock %}
+
+{% block js_content %} 
+
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $( document ).ready(function() {
+        $('Select').attr('class', 'form-control');
+        $('input[type=text]').attr('class', 'form-control');
+        $('input[type=number]').attr('class', 'form-control');
+        $('textarea').attr('class', 'form-control');
+        $('table').DataTable({
+          language: {
+              "decimal": "",
+              "emptyTable": "No hay información",
+              "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+              "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+              "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+              "infoPostFix": "",
+              "thousands": ",",
+              "lengthMenu": "Mostrar _MENU_ Entradas",
+              "loadingRecords": "Cargando...",
+              "processing": "Procesando...",
+              "search": "Buscar:",
+              "zeroRecords": "Sin resultados encontrados",
+              "buttons": {
+                "copy": "Copiar",
+                "excel": "Exportar a excel",
+                "pdf": "Exportar a PDF",
+                "print": "Imprimir",
+
+              },
+              "paginate": {
+                  "first": "Primero",
+                  "last": "Ultimo",
+                  "next": "Siguiente",
+                  "previous": "Anterior"
+              }
+          },
+          "paging": true,
+          "pageLength": 50,
+          "lengthChange": false,
+          "searching": true,
+          "ordering": true,
+          "info": true,
+          "autoWidth": true,
+          "responsive": true,
+          "scrollCollapse": true,
+          //"scrollY": "300px",
+          "buttons": ["copy", "excel", "pdf", "print"]
+        }); //.buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+        //Agrega estilo al campo de busqueda de la tabla
+        $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+        $('input.form-control:nth-child(1)').css('width', '80%');
+
+        
+        //Calcula la cantidad de registros que se pueden nacionalizar
+        $('#nacionalizar_button').click(function(){
+          if ($('#id_Manifiesto').val() && $('#id_No_Contenedor').val()){
+            $.ajax({
+              url: '{% url 'ajax_load_cantidad_registros_a_nacionalizar' %}',
+              method: 'GET',
+              data: {
+                'manifiesto': $('#id_Manifiesto').val(),
+                'contenedor': $('#id_No_Contenedor').val(),
+                'municipio': $('#id_Municipio').val(),
+              },
+              success: function (data) {
+                $('#tiempo_estimado').empty();
+                if (data.registros > 0){
+                  $('#tiempo_estimado').append('El tiempo aproximado de la operación es de ' + data.cantidad);
+                }
+                else{
+                  $('#tiempo_estimado').append('No hay ningun registro para nacionalizar');
+                }
+              }
+            });
+          }
+          else{
+            $('form').submit();
+          }
+        });
+    });
+
+    $('#dialog_acept_button').click(function(){
+      $('body').append('<div class="loader"></div>');
+      $('form').submit();
+    });
+
+   // addInput() function añade input on button click
+    function addInput(){
+        
+        // First create a DIV element.
+        var txtNewInputBox = document.createElement('div');
+        txtNewInputBox.className += "col-xl-3 col-lg-3 col-md-6 col-sm-12 marcado_col";
+        // Then add the content (a new input box) of the element.
+        txtNewInputBox.innerHTML = "<div class='form-group'><input name='marcado' id='marcado' class='form-control marcado'></div>";
+        // Finally put it where it is supposed to appear.
+        document.getElementById("paquetes_marcados").appendChild(txtNewInputBox);
+        
+    }
+  // removeInput() function elimina input on button click
+    function removeInput(){
+        var lastLiItem = document.querySelectorAll(".marcado_col:last-child");
+        lastLiItem[lastLiItem.length -1].remove()
+    }
+
+</script>
+
+{% endblock %}

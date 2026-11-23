@@ -1,0 +1,639 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %} 
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static '/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static '/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+  <style>
+    .btn.btn-secondary {
+      background-color: #4886bd;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              {{header_text}}
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item active"> {{breadcrumb_text}} </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <!-- Filters -->
+    <div class="row">
+      <div class="col-lg-12 col-12">
+        <!-- Left col -->
+        <section class="content">
+          <div class="container-fluid">
+            <!-- Main row -->
+            <!-- Filters -->
+            <div class="row">
+              <div class="col-lg-12 col-12">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid">
+                    <!-- <form id="filter_form" action="" method="GET">
+                      <input type="hidden" name="page" id="page_selector" value="" />
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Búsquedas</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Manifiesto.label_tag }}
+                            {{ inventario_filter.form.Manifiesto }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.No_Contenedor.label_tag }}
+                            {{ inventario_filter.form.No_Contenedor }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.HBL.label_tag }}
+                            {{ inventario_filter.form.HBL }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Almacen.label_tag }}
+                            {{ inventario_filter.form.Almacen }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Destinatario_Nombre.label_tag }}
+                            {{ inventario_filter.form.Destinatario_Nombre }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Destinatario_CI.label_tag }}
+                            {{ inventario_filter.form.Destinatario_CI }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ inventario_filter.form.Destinatario_Provincia.label_tag }}
+                            {{ inventario_filter.form.Destinatario_Provincia }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            <label for="id_Destinatario_Municipio">Municipio:</label>
+                            <select name="Destinatario_Municipio" class="form-control" id="id_Destinatario_Municipio">
+                              <option value="">---------</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.Fecha_Importacion_desde.label_tag }}
+                            {{ manifiesto_filter.form.Fecha_Importacion_desde }}
+                          </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+                          <div class="form-group">
+                            {{ manifiesto_filter.form.Fecha_Importacion_hasta.label_tag }}
+                            {{ manifiesto_filter.form.Fecha_Importacion_hasta }}
+                          </div>
+                        </div>
+                        <div class="col-12">
+                          <a href="{{ request.path }}" style="float: right;" class="btn btn-primary">Limpiar</a>
+                          <button type="submit" style="float: right; margin-right: 10px;" class="btn btn-primary">Filtrar</button>
+                        </div>
+                      </div>
+                    </form> -->
+                      <hr>
+                      <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                          <label>Acciones a ejecutar sobre filas seleccionadas</label>
+                          <select id="accion_tabla" name="accion_tabla" class="form-control" style="width: 100%;">
+                            <option value="0">---------</option>
+                            <!-- {% if request.path == '/inventario/list/' %}
+                              <option value="1">Mover de almacén</option>
+                              <option value="2">Re-nacionalizar cargas</option>
+                              <option value="7">Trasbordar cargas</option>
+                              <option value="8">Declarar como canal rojo</option>
+                            {% endif %}
+                            {% if request.path == '/mercancia-no-nacionalizada/lista/' %}
+                              <option value="1">Mover de almacén</option>
+                              <option value="2">Nacionalizar cargas</option>
+                            {% endif %}
+                            {% if request.path == '/mercancias-no-localizables/list/' %}
+                              <option value="1">Reincorporar a almacén</option>
+                            {% endif %}
+                            {% if request.path == '/entrega/lista/' %}
+                              <option value="1">Reincorporar a almacén</option>
+                              <option value="3">Declarar como entregadas</option>
+                            {% endif %} -->
+                            {% if request.path == '/comprobante-entrega/envio/' %}
+                              {% if isNoEscaneado %} <option value="4">Comprobante de envío</option> {% endif %}
+                              {% if isNoEscaneado %} <option value="5">Comprobante de ena o menaje</option> {% endif %}
+                              {% if isNoEscaneado %} <option value="9">Cancelar comprobantes</option> {% endif %}
+                              <!-- {% if isNoEscaneado %} <option value="10">Generar comprobantes</option> {% endif %} -->
+                            {% endif %}  
+                            
+                          </select>
+                        </div>
+                      </div>
+                  </div>
+                </section>
+            </div>
+            </div>
+            
+              <div class="col-lg-12 col-12" id="id_div_table">
+                <!-- Left col -->
+                <section class="content"
+                  style="background-color: #fff; padding: .5em; margin-bottom: 10px; border-radius: 15px;">
+                  <div class="container-fluid table-responsive">
+                    <form id="inventario_tabla_form" method="POST" action="">
+                    {% csrf_token %}
+                    <!-- informaciones pasadas por POST-->
+                    <!-- Tipo de operacion-->
+                    <input type="hidden" id="operacion_tabla" name="operacion_tabla" value="" />
+                    <!-- Operacion trasladar de almacen-->
+                    <input type="hidden" id="id_almacen_tabla" name="id_almacen_tabla" value="" />
+                    <!-- Operacion nacionalizar-->
+                    <input type="hidden" id="id_provincia_submit" name="id_provincia_submit" value="" />
+                    <input type="hidden" id="id_municipio_submit" name="id_municipio_submit" value="" />
+                    <!--fin-->  
+                    <table id="inventario_table" class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th style="text-align: center;">
+                            <input type="checkbox" id="select_all_table"  />
+                            Seleccionar
+                          </th>
+                          <th>Escaneado</th>
+                          <th>No. Contenedor</th>
+                          <th>Manifiesto</th>
+                          <th>HBL</th>
+                          <th>Nombre y apellidos del destinatario</th>
+                          <th>CI</th>
+                          <th>Almacén</th>
+                          <th>OPCIONES</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for current_inventario in cargas_temporales %}
+                        <tr>
+                          <td style="text-align: center;"><input type="checkbox" name="inventario_id" value="{{current_inventario.Inventario.id}}"></td>
+                          <td>
+                            {% if current_inventario.isEscaneado %}
+                              <i class="fa fa-check text-success"></i>
+                            {% else %} 
+                              <i class="fa fa-times text-danger"></i>
+                            {% endif %}
+                          </td>
+                          <td>{{current_inventario.Inventario.No_Contenedor}}</td>
+                          <td>{{current_inventario.Inventario.Manifiesto}}</td>
+                          <td>{{current_inventario.Inventario.HBL}}</td>
+                          <td>{{current_inventario.Destinatario.Nombre}}</td>
+                          <td>{{current_inventario.Destinatario.CI}}</td>
+                          <!-- <td>{{current_inventario.Destinatario.Direccion}}</td> -->
+                          <td>{{current_inventario.Inventario.Almacen}}</td>
+                          <td>
+                            <a href="{% url 'inventario_detail' current_inventario.id %}" class="btn btn-block btn-primary">Detalles</a>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <div class="dataTables_paginate paging_simple_numbers" id="inventario_table_paginate">
+                      <ul class="pagination">
+                        <!--Info de paginacion-->
+                        <label style="margin-right: 10px; margin-top: 6px; font-weight: 500;">Mostrando {{ cargas_temporales.start_index }} - {{ cargas_temporales.end_index }} de {{ cargas_temporales.paginator.count }}</label>
+                        <!--Boton anterior-->
+                        <li class="paginate_button page-item previous {% if not hbl_destinatario_no_escaneados.has_previous %} disabled {% endif %}"><a href="#" {% if hbl_destinatario_no_escaneados.has_previous %} onclick="paginator_link({{ cargas_temporales.previous_page_number }})" {% endif %} class="page-link">Anterior</a></li>
+                        <!--Boton Pagina 1-->
+                        <li class="paginate_button page-item {% if hbl_destinatario_no_escaneados.number == 1 %} active {% endif %}"><a href="#" onclick="paginator_link(1)" class="page-link">1</a></li>
+
+                        {% if not cargas_temporales.number == 1 and not cargas_temporales.number == cargas_temporales.paginator.num_pages %}
+                        <li class="paginate_button page-item active"><a href="#" onclick="paginator_link({{ cargas_temporales.number }})" class="page-link">{{cargas_temporales.number}}</a></li>
+                        {% endif %}
+
+                        <!--Boton Ultima pagina 1-->
+                        {% if cargas_temporales.paginator.num_pages > 1 %}
+                        <li class="paginate_button page-item {% if hbl_destinatario_no_escaneados.number == hbl_destinatario_no_escaneados.paginator.num_pages %} active {% endif %}"><a href="#" onclick="paginator_link({{ cargas_temporales.paginator.num_pages }})" class="page-link">{{ cargas_temporales.paginator.num_pages }}</a></li>
+                        {% endif %}
+                        <!--Boton Siguiente-->
+                        <li class="paginate_button page-item next {% if not hbl_destinatario_no_escaneados.has_next %} disabled {% endif %}"><a href="#" {% if hbl_destinatario_no_escaneados.has_next %} onclick="paginator_link({{ cargas_temporales.next_page_number }})" {% endif %} class="page-link">Siguiente</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <!-- /.row (main row) -->
+          </div><!-- /.container-fluid -->
+        </section>
+      </div>
+    </div>
+    <!-- /.row (main row) -->
+  </div><!-- /.container-fluid -->
+</section>
+
+
+<!-- modal-generar-factura -->
+<div class="modal fade" id="modal-generar-factura-ena-menaje">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Generar comprobante de entrega</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+            <div class="modal-body">
+              <label>Por favor complete la siguiente información</label> 
+            </div>
+            <div class="col-12">
+              <label>Importe por derecho aduanal</label>
+              <input type="text" name="importe_derecho_aduanal" id="id_importe_derecho_aduanal" class="form-control" value="0.0" />
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <label>Importe por servicio aduanal</label>
+              <input type="text" name="importe_servicio_aduanal" id="id_importe_servicio_aduanal" class="form-control" value="0.0" />
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <label>Cargos extra</label>
+              <input type="text" name="cargos_extra_ena" id="cargos_extra_ena" class="form-control" value="0.0" />
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="incluir_transportacion_ena" id="id_incluir_transportacion_ena" checked />
+              <label>Incluir costos de transportación</label>
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="trasbordo" id="id_trasbordo"  />
+              <label>Trasbordo</label>
+            </div>
+            <div class="modal-footer justify-content-between" style="margin-top: 10px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="button_generar_factura" onclick="setTime()" >Aceptar</button>
+            </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+<!-- modal-generar-factura-envio -->
+<div class="modal fade" id="modal-generar-factura-envio">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Generar comprobante de entrega</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+            <div class="modal-body">
+              <label>Por favor complete la siguiente información</label> 
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <label>Cargos extra</label>
+              <input type="text" name="cargos_extra" id="id_cargos_extra" class="form-control" value="0.00" />
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="incluir_transportacion" id="id_incluir_transportacion" checked />
+              <label>Incluir costos de transportación</label>
+            </div>
+            <div class="col-12" style="margin-top: 10px;">
+              <input type="checkbox" name="trasbordo" id="id_trasbordo"  />
+              <label>Trasbordo</label>
+            </div>
+            <div class="modal-footer justify-content-between" style="margin-top: 10px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="button_generar_factura_envio" onclick="setTime()" >Aceptar</button>
+            </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-suspender-evento -->
+</div>
+
+</form>
+
+
+
+<!-- modal-dialog-canal-rojo -->
+<div class="modal fade" id="modal-cancelar-comprobantes">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Cancelar generación de comprobantes</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a cancelar la generación automática de comprobantes para las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_cancelar_comprobantes" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-canal-rojo -->
+</div>
+
+
+<!-- modal-dialog-canal-rojo -->
+<div class="modal fade" id="modal-cancelar-comprobantes">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Cancelar generación de comprobantes</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <label>Al aceptar usted va a cancelar la generación automática de comprobantes para las cargas seleccionadas</label> 
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+              <a href="#" id="button_cancelar_comprobantes" class="btn btn-primary">Aceptar</a>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog-canal-rojo -->
+</div>
+
+{% endblock %}
+
+{% block js_content %} 
+<!-- DataTables  & Plugins -->
+<script src="{% static '/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static '/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static '/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static '/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>  
+    $( document ).ready(function() {
+        
+
+      $("#accion_tabla" ).change(function() {
+        
+        if ($("#accion_tabla" ).val() == '4'){
+          $("#operacion_tabla").val('facturar_envios');
+          $("form").attr('target', '_blank');
+          $("#modal-generar-factura-envio" ).modal('show');
+        }
+
+        if ($("#accion_tabla" ).val() == '5'){
+          $("#operacion_tabla").val('facturar_ena_menaje');
+          $("form").attr('target', '_blank');
+          $("#modal-generar-factura-ena-menaje" ).modal('show');
+        }
+        if ($("#accion_tabla" ).val() == '9'){
+          $("#operacion_tabla").val('cancelar_generacion_comprobantes');
+          $("form").attr('target', '_blank');
+          $('#inventario_tabla_form').submit();
+        }
+
+        if ($("#accion_tabla" ).val() == '10'){
+          $("#operacion_tabla").val('actualizar_comprobante_destinatario');
+          $("form").attr('target', '_blank');
+          // $("#modal-cancelar-comprobantes" ).modal('show');
+          console.log('entroooo');
+          $('#inventario_tabla_form').submit();
+        }
+
+      });
+    
+
+    $('#modal-generar-factura-envio').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $("form").attr('target', '');
+      })
+
+      $('#modal-generar-factura-ena-menaje').on('hidden.bs.modal', function (e) {
+        $("#accion_tabla" ).val('0');
+        $("form").attr('target', '');
+      }) 
+      //Acciones de cancelar comprobantes---------------------
+      // $('#modal-cancelar-comprobantes').on('hidden.bs.modal', function (e) {
+      //   $("#accion_tabla" ).val('0');
+      // })
+
+      // $('#button_cancelar_comprobantes').click(function() {
+      //   $('#inventario_tabla_form').submit();
+      // });
+      
+
+
+      //Datatable-------------------------------------------------------------------
+      //Crea la tabla 
+      $('table').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "buttons": {
+              "copy": "Copiar",
+              "excel": "Exportar a excel",
+              "pdf": "Exportar a PDF",
+              "print": "Imprimir",
+
+            },
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "paging": false,
+        "pageLength": 400,
+        "lengthChange": false,
+        "searching": true,
+        "ordering": true,
+        "info": false,
+        "autoWidth": true,
+        "responsive": true,
+        "scrollCollapse": true,
+        //"scrollY": "300px",
+        "buttons": ["copy", "excel", "pdf", "print"]
+      }).buttons().container().appendTo('#inventario_table_wrapper .col-md-6:eq(0)');
+
+      //Agrega estilo al campo de busqueda de la tabla
+      $('#DataTables_Table_0_filter > label:nth-child(1)').css('width', '100%');
+      $('input.form-control:nth-child(1)').css('width', '80%');
+
+      //Agrega paginacion
+      $('#inventario_table_wrapper .col-md-7').append($('#inventario_table_paginate'));
+      $('#inventario_table_paginate ul li a').click(function(){
+        
+      });
+
+      $('#select_all_table').change(function(){
+        if ($('#select_all_table').is(':checked')){
+          $('input[type=checkbox]').prop("checked", true); 
+        }else{
+          $('input[type=checkbox]').prop("checked", false); 
+        }
+      });
+      //Fin de datatable------------------------------------------------------------------------------------
+    
+      //Ajax de listado de municipios---------------------------------------------------------------------------
+      //Actualizacion al cambiar la provincia  
+      $("#id_Destinatario_Provincia").change(function () {
+        actualiza_municipio($("#id_Destinatario_Provincia").val());
+      });  
+
+      //Identificando si existe alguna provincia cargada al hacer get
+      const url = window.location.search;
+      const urlParametro = new URLSearchParams(url);
+      const id_provincia = urlParametro.get("Destinatario_Provincia");
+
+      if (id_provincia){
+        actualiza_municipio(id_provincia);
+      }
+      
+      //Actualiza el listado de municipios        
+      function actualiza_municipio(id_provincia){
+        //Captura si existe algun municipio en el request
+        const url = window.location.search;
+        const urlParametro = new URLSearchParams(url);
+        const id_municipio = urlParametro.get("Destinatario_Municipio");
+
+        //Eliminando todas las opiones existentes
+        $('#id_Destinatario_Municipio').empty().append('<option value="">---------</option>');
+
+        $.ajax({
+          url: '{% url 'ajax_municipio_load' %}',
+          method: 'GET',
+          data: {
+            'id_provincia': id_provincia
+          },
+          success: function (data) {
+            var obj = JSON.parse(data);
+
+            for (x of obj) {
+              if (id_municipio == x.pk){
+                $('#id_Destinatario_Municipio').append($('<option>', {
+                  selected: '',
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }else{
+                $('#id_Destinatario_Municipio').append($('<option>', {
+                  value: x.pk,
+                  text: x.fields.Nombre
+                }));
+              }
+            }
+          }
+        });
+        return;
+      }
+      //Fin de trabajo con municipios---------------------------------------------------------------------------
+    });
+
+    //Paginacion
+    function paginator_link(page){
+      $('#page_selector').val(page);
+      $('#filter_form').submit();
+    }
+
+    function setTime(){
+      setTimeout(function(){
+            window.location.href = '/comprobante-entrega/envio/';
+         }, 3000);
+    }
+
+
+// -----------------------------------------
+
+// jQuery('.delete_all').on('click', function(e) { 
+// var allVals = [];  
+//   $(".sub_chk:checked").each(function() {  
+//    allVals.push($(this).attr('data-id'));
+//   });  
+//   //alert(allVals.length); return false;  
+//   if(allVals.length <=0)  
+//   {  
+//    alert("Please select row.");  
+//   }  
+//   else {  
+//    //$("#loading").show(); 
+//    WRN_PROFILE_DELETE = "Are you sure you want to delete this row?";  
+//    var check = confirm(WRN_PROFILE_DELETE);  
+//    if(check == true){  
+//     //for server side
+    
+//     var join_selected_values = allVals.join(","); 
+    
+//     $.ajax({   
+      
+//      type: "POST",  
+//      url: '{% url 'ajax_eliminar_no_escaneados' %}',  
+//      cache:false,  
+//      data: 'ids='+join_selected_values,  
+//      success: function(response)  
+//      {   
+//       $("#loading").hide();  
+//       $("#msgdiv").html(response);
+//       //referesh table
+//      }   
+//     });              
+//     //for client side
+//      $.each(allVals, function( index, value ) {
+//       $('table tr').filter("[data-row-id='" + value + "']").remove();
+//      });
+    
+
+//    }  
+//   }  
+//  });
+// -----------------------------------------
+      
+</script>
+
+{% endblock %}

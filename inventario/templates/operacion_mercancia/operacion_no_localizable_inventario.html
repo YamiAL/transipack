@@ -1,0 +1,177 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+{% block css_content %}
+<style>
+  .errorlist {
+    background-color: #dc3545;
+    font-style: normal;
+    color: aliceblue;
+    padding: 3px;
+    border-radius: 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">
+              Declarar como mercancía no localizable
+            </h1>
+          </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'inventario_detail' inventario.id %}">Detalle inventario</a></li>
+                    <li class="breadcrumb-item active">
+                        Mercancía no localizable
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <h4>Información de la mercancía</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Manifiesto:</label> <label style="font-weight: 500">{{inventario.Manifiesto}}</label>
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>HBL:</label> <label style="font-weight: 500">{{inventario.HBL}}</label>
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Cantidad de bultos:</label> <label style="font-weight: 500">{{inventario.Cantidad_Bultos}}</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Volumen (m3):</label> <label style="font-weight: 500">{{inventario.Volumen}}</label>
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Precio:</label> <label style="font-weight: 500">{{inventario.Precio}}</label>
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Peso (Kg):</label> <label style="font-weight: 500">{{inventario.Peso}}</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Almacén:</label> <label style="font-weight: 500">{{inventario.Almacen}}</label>
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Área:</label> <label style="font-weight: 500">{{inventario.Ubicacion_Fila}}</label>
+                  </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="form-group">
+                    <label>Columna:</label> <label style="font-weight: 500">{{inventario.Ubicacion_Columna}}</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <h4>Información adicional para la operación</h4>
+                  <hr>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    {{ form.Observ_No_Localizable.errors }}
+                    {{ form.Observ_No_Localizable.label_tag }}
+                    {{ form.Observ_No_Localizable }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-left: auto; margin-right: auto;">
+              <div class="card-footer" style="text-align: center">
+                <button type="button" style="width: 30%; margin-right: 10px;" class="btn btn-danger" data-toggle="modal"
+                  data-target="#modal-cancelar">
+                  Cancelar
+                </button>
+                <button type="submit" style="width: 30%;" class="btn btn-primary">Aceptar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card -->
+      </div>
+      </div>
+    </form>
+</section>
+<!-- /.content -->
+
+<!-- modal-dialog-cancelar -->
+<div class="modal fade" id="modal-cancelar">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cancelar operación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Usted va a salir de la operación actual</label>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <a href="{% url 'inventario_detail' inventario.id %}" class="btn btn-primary">Aceptar</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog-suspender-evento -->
+</div>
+{% endblock %}
+
+{% block js_content %} 
+
+<script>
+    $( document ).ready(function() {
+        $('Select').attr('class', 'form-control');
+        $('input[type=text]').attr('class', 'form-control');
+        $('input[type=number]').attr('class', 'form-control');
+        $('textarea').attr('class', 'form-control');
+    });
+</script>
+
+{% endblock %}
